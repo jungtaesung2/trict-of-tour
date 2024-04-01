@@ -8,6 +8,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Tour } from './tour/entities/tour.entity';
 import { Region } from './tour/entities/region.entity';
+import { TourModule } from './tour/tour.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -42,6 +44,8 @@ const typeOrmModuleOptions = {
       }),
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
+    TourModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
