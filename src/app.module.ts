@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Tour } from './tour/entities/tour.entity';
@@ -44,6 +45,8 @@ const typeOrmModuleOptions = {
     TourModule,
     ReviewsModule,
   ],
+
+
   controllers: [AppController],
   providers: [AppService],
 })
