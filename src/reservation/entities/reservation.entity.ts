@@ -72,9 +72,9 @@ export class Reservation {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.reservations)
-  @JoinColumn({ name: 'userId' })
-  user: User;
+  // @ManyToOne(() => User, (user) => user.reservations)
+  // @JoinColumn({ name: 'userId' })
+  // user: User;
 
   @ManyToOne(() => Tour, (tour) => tour.reservations)
   @JoinColumn({ name: 'tourId' })

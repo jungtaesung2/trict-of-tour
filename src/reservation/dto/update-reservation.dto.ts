@@ -1,7 +1,4 @@
-import { PickType } from '@nestjs/mapped-types';
-import { Reservation } from '../entities/reservation.entity';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateReservationDto } from './create-reservation.dto';
 
-export class UpdateReservationDto extends PickType(Reservation, [
-  `cancelReason`,
-  `status`,
-]) {}
+export class UpdateReservationDto extends PartialType(CreateReservationDto) {}
