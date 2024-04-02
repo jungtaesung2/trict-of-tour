@@ -107,6 +107,28 @@ export class reservationService {
   }
 
   async findReservationsByStatus(status: Status): Promise<Reservation[]> {
-    return await this.reservationRepository.find({ where: { status } });
+    let reservations: Reservation[];
+
+    switch (status) {
+      case Status.CANCEL:
+        reservations = await this.reservationRepository.find({
+          where: { status: Status.CANCEL },
+        });
+        break;
+      case Status.ONGOING:
+        reservations = await this.reservationRepository.find({
+          where: { status: Status.ONGOING },
+        });
+        break;
+      case Status.FINISH:
+        reservations = await this.reservationRepository.find({
+          where: { status: Status.FINISH },
+        });
+        break;
+      default:
+        throw new Error('올바르지 않은 상태입니다.');
+    }
+
+    return reservations;
   }
 }
