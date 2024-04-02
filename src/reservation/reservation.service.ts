@@ -12,7 +12,7 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { Status } from './types/status.type';
 
 @Injectable()
-export class reservationService {
+export class ReservationService {
   findReservationById: any;
   constructor(
     @InjectRepository(Tour)

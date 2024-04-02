@@ -15,8 +15,8 @@ export class TourService {
   constructor(
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
-    @InjectRepository(Guide)
-    private readonly guideRepository: Repository<Guide>,
+    // @InjectRepository(Guide)
+    // private readonly guideRepository: Repository<Guide>,
     @InjectRepository(Region)
     private readonly regionRepository: Repository<Region>,
   ) {}
@@ -36,14 +36,14 @@ export class TourService {
       longitude,
     } = createTourDto;
 
-    // 가이드 존재 확인
-    const guide = await this.guideRepository.findOne({
-      where: { id: guideId },
-    });
+    // // 가이드 존재 확인
+    // const guide = await this.guideRepository.findOne({
+    //   where: { id: guideId },
+    // });
 
-    if (!guide) {
-      throw new BadRequestException('가이드가 존재하지 않습니다.');
-    }
+    // if (!guide) {
+    //   throw new BadRequestException('가이드가 존재하지 않습니다.');
+    // }
 
     // 지역설정
     const region = await this.regionRepository.findOne({

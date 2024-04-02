@@ -12,10 +12,11 @@ import {
 import { TourType } from '../types/tourtypes.enum';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import { Region } from './region.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Entity({ name: 'tours' })
 export class Tour {
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @IsNumber()
@@ -86,16 +87,16 @@ export class Tour {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.tour)
+  @OneToMany(() => Reservation, (reservations) => reservations.tour)
   reservations: Reservation[];
 
   @OneToMany(() => Region, (region) => region.tour)
   regions: Region[];
 
-  @JoinColumn({ name: 'guideId' })
-  @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
-  guide: Guide;
+  // @JoinColumn({ name: 'guideId' })
+  // @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
+  // guide: Guide;
 
-  @OneToOne(() => Like, (like) => like.tour)
-  like: Like;
+  // @OneToOne(() => Like, (like) => like.tour)
+  // like: Like;
 }

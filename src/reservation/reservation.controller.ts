@@ -10,7 +10,7 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { reservationService } from '../reservation/reservation.service';
+import { ReservationService } from '../reservation/reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { TourService } from '../tour/tour.service';
 import { validate } from 'class-validator';
@@ -23,7 +23,7 @@ import { Status } from './types/status.type';
 @Controller('/reservations')
 export class ReservationController {
   constructor(
-    private readonly ReservationService: reservationService,
+    private readonly ReservationService: ReservationService,
     private readonly TourService: TourService,
   ) {}
 
