@@ -7,8 +7,10 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Tour } from './tour/entities/tour.entity';
 import { Region } from './tour/entities/region.entity';
 import { TourModule } from './tour/tour.module';
+import { ReservationModule } from './reservation/reservation.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/entities/review.entity';
+import { Reservation } from './reservation/entities/reservation.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -20,7 +22,8 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review],
+    entities: [Tour, Region, Review, Reservation],
+
     synchronize: configService.get('DB_SYNC'),
     logging: true,
   }),
@@ -44,8 +47,8 @@ const typeOrmModuleOptions = {
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     TourModule,
     ReviewsModule,
+    ReservationModule,
   ],
-
 
   controllers: [AppController],
   providers: [AppService],
