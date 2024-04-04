@@ -34,15 +34,13 @@ export class Tour {
   @Column({ type: 'varchar', nullable: false })
   title: string;
 
-  @IsString()
   @IsNotEmpty({ message: '시작일을 입력해주세요' })
   @Column({ type: 'datetime', nullable: false })
-  startDate: string;
+  startDate: Date;
 
-  @IsString()
   @IsNotEmpty({ message: '만기일을 입력해주세요' })
   @Column({ type: 'datetime', nullable: false })
-  endDate: string;
+  endDate: Date;
 
   @IsString()
   @IsNotEmpty({ message: '가격을 입력해주세요' })
@@ -71,12 +69,12 @@ export class Tour {
   @Column({ type: 'text', nullable: false })
   content: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty({ message: '위도를 입력해주세요' })
   @Column({ type: 'text', nullable: false })
   latitude: number;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty({ message: '경도를 입력해주세요' })
   @Column({ type: 'text', nullable: false })
   longitude: number;
@@ -87,8 +85,6 @@ export class Tour {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
-//   @OneToMany(() => Reservation, (reservation) => reservation.tour)
-//   reservations: Reservation[];
   @OneToMany(() => Reservation, (reservations) => reservations.tour)
   reservations: Reservation[];
 
