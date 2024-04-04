@@ -15,8 +15,14 @@ export class Region {
   @Column()
   regionName: string;
 
+
+//   @JoinColumn({ name: 'regionId' })
+//   @Column()
+//   @ManyToOne(() => Tour, (tour) => tour.regions, { onDelete: 'CASCADE' })
+//   tour: Tour;
   // @Column()
-  @ManyToOne(() => Tour, (tour) => tour.regions, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'regionId' })
-  tour: Tour;
+//   @ManyToOne(() => Tour, (tour) => tour.regions, { onDelete: 'CASCADE' })
+//   @JoinColumn({ name: 'regionId' })
+//   tour: Tour;
+
 }
