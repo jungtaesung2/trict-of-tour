@@ -36,7 +36,11 @@ export class TourService {
       longitude,
     } = createTourDto;
 
+<<<<<<< HEAD
     // 가이드 존재 확인
+=======
+    // // 가이드 존재 확인
+>>>>>>> ffeacd5c85812c125e10130ac4c92734d310fe4f
     // const guide = await this.guideRepository.findOne({
     //   where: { id: guideId },
     // });

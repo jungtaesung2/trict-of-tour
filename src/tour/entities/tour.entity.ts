@@ -12,10 +12,11 @@ import {
 import { TourType } from '../types/tourtypes.enum';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import { Region } from './region.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
 
 @Entity({ name: 'tours' })
 export class Tour {
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @IsNumber()
@@ -86,16 +87,36 @@ export class Tour {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
+<<<<<<< HEAD
   // @OneToMany(() => Reservation, (reservation) => reservation.tour)
   // reservations: Reservation[];
+=======
+//   @OneToMany(() => Reservation, (reservation) => reservation.tour)
+//   reservations: Reservation[];
+  @OneToMany(() => Reservation, (reservations) => reservations.tour)
+  reservations: Reservation[];
+>>>>>>> ffeacd5c85812c125e10130ac4c92734d310fe4f
 
-  @OneToMany(() => Region, (region) => region.tour)
-  regions: Region[];
+//   @OneToMany(() => Region, (region) => region.tour)
+//   regions: Region[];
 
+<<<<<<< HEAD
   // @JoinColumn({ name: 'guideId' })
   // @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
   // guide: Guide;
 
+=======
+//   @JoinColumn({ name: 'guideId' })
+//   @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
+//   guide: Guide;
+
+//   @OneToOne(() => Like, (like) => like.tour)
+//   like: Like;
+  // @JoinColumn({ name: 'guideId' })
+  // @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
+  // guide: Guide;
+
+>>>>>>> ffeacd5c85812c125e10130ac4c92734d310fe4f
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;
 }
