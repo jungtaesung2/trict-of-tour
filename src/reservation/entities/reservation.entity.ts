@@ -27,10 +27,6 @@ export class Reservation {
   @Column({ type: 'int', nullable: false })
   userId: number;
 
-  @IsNumber()
-  @Column({ type: 'int', nullable: false })
-  tourId: number;
-
   @IsString()
   @Column({ type: 'varchar', nullable: false })
   paymentAmount: string;
@@ -43,6 +39,9 @@ export class Reservation {
   @IsDate()
   @Column({ type: 'date', nullable: false })
   date: Date;
+
+  @Column({ default: false })
+  isCancelled: boolean;
 
   @IsNumber()
   @Column({ type: 'int', nullable: false })
@@ -59,7 +58,7 @@ export class Reservation {
   lastname: string;
 
   @IsString() // 취소 이유를 저장할 데이터베이스 필드
-  @Column({ type: 'varchar', nullable: true }) // 취소 이유는 선택적으로 저장될 수 있음
+  @Column({ type: 'varchar', nullable: true })
   cancelReason: string;
 
   @IsEnum(Status)
@@ -77,6 +76,6 @@ export class Reservation {
   // user: User;
 
   @ManyToOne(() => Tour, (tour) => tour.reservations)
-  @JoinColumn({ name: 'tourId' })
+  @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
   tour: Tour;
 }

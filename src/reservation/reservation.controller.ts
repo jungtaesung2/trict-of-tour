@@ -27,39 +27,44 @@ export class ReservationController {
     private readonly TourService: TourService,
   ) {}
 
-  @Post()
+  @Post(':tourId')
   async CreateReservation(
     @Param('tourId') tourId: number,
-    @Body() CreateReservation: CreateReservationDto,
+    @Body() CreateReservationDto: CreateReservationDto,
     @Req() req: any,
   ) {
     try {
       // 사용자 ID 가져오기
       const userId = req.user;
 
-      await validate(CreateReservation);
+      // 주어진 투어 ID에 해당하는 투어가 있는지 확인
+      const tour = await this.TourService.findOne(+tourId);
 
+      if (!tour) {
+        throw new NotFoundException('해당하는 투어를 찾지 못하였습니다.');
+      }
+
+      const isValidDate = await this.ReservationService.isDateValid(
+        tourId,
+        new Date(CreateReservationDto.date),
+      );
+      if (!isValidDate) {
+        throw new Error('예약할 수 없는 날짜입니다.');
+      }
       // 예약 생성
-      const { message, reservationDetails } =
-        await this.ReservationService.create(CreateReservation, userId, tourId);
+      const { message, reservation } = await this.ReservationService.create(
+        CreateReservationDto,
+        userId,
+        tourId,
+      );
 
-      //   return {
-      //     statusCode: 200,
-      //     message,
-      //     date: reservationDetails.date,
-      //     people: reservationDetails.people,
-      //     firstname: reservationDetails.firstname,
-      //     lastname: reservationDetails.lastname,
-      //     specialRequests: reservationDetails.specialRequests,
-      //   };
-
-      return { statusCode: 200, message, reservationDetails };
+      return { statusCode: 200, message, reservation };
     } catch (error) {
       throw new Error(`${error}`);
     }
   }
 
-  @Patch('/:reservationId')
+  @Patch('/:reservationId/cancel')
   async editReservaition(
     @Param('reservationId') reservationId: number,
     @Body() UpdateReservationDto: UpdateReservationDto,
