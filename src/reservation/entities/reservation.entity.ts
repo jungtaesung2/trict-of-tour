@@ -4,6 +4,7 @@ import {
   IsString,
   IsNumber,
   IsDate,
+  IsBoolean,
 } from 'class-validator';
 import {
   Column,
@@ -11,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -40,9 +42,6 @@ export class Reservation {
   @Column({ type: 'date', nullable: false })
   date: Date;
 
-  @Column({ default: false })
-  isCancelled: boolean;
-
   @IsNumber()
   @Column({ type: 'int', nullable: false })
   people: number;
@@ -65,11 +64,18 @@ export class Reservation {
   @Column({ type: 'enum', enum: Status, default: Status.ONGOING })
   status: Status;
 
+  @IsBoolean()
+  @Column({ default: true })
+  active: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt!: Date | null;
 
   // @ManyToOne(() => User, (user) => user.reservations)
   // @JoinColumn({ name: 'userId' })

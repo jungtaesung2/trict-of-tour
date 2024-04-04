@@ -8,7 +8,7 @@ import { CreateReservationDto } from '../reservation/dto/create-reservation.dto'
 import { Repository } from 'typeorm';
 import { Reservation } from '../reservation/entities/reservation.entity';
 import { Tour } from '../tour/entities/tour.entity';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
 import { privateDecrypt } from 'crypto';
 
@@ -74,6 +74,7 @@ export class ReservationService {
       firstname: CreateReservationDto.firstname,
       lastname: CreateReservationDto.lastname,
       specialRequests: CreateReservationDto.specialRequests,
+      active: true,
     });
 
     // 예약 정보 저장
@@ -86,9 +87,27 @@ export class ReservationService {
     };
   }
 
+  // 유틸리티 메서드로 현재 시간과 취소 데드라인 비교하기
+  private isCancellationDeadlinePassed(tourStartDate: Date): boolean {
+    const currentDate = new Date();
+    const cancelDeadline = new Date(
+      tourStartDate.getTime() - 48 * 60 * 60 * 1000,
+    );
+    console.log('현재날자', currentDate);
+    console.log('데드라인', cancelDeadline);
+    return currentDate >= cancelDeadline;
+  }
+
+  // 취소 가능 여부 확인하기
+  async canCancelReservation(reservationId: number): Promise<boolean> {
+    const reservation = await this.findReservationById(reservationId);
+    const tourStartDate: Date = new Date(reservation.date);
+    return !this.isCancellationDeadlinePassed(tourStartDate);
+  }
+
   // 02. 예약 취소
   async requestCancellation(
-    UpdateReservationDto: UpdateReservationDto,
+    cancelReservationDto: CancelReservationDto,
     reservationId: number,
     userId: number,
   ): Promise<{ message: string }> {
@@ -100,12 +119,11 @@ export class ReservationService {
       throw new NotFoundException('해당 예약을 찾을 수 없습니다.');
     }
 
-    if (!UpdateReservationDto.cancelReason) {
+    if (!cancelReservationDto.cancelReason) {
       throw new BadRequestException('취소 이유를 제공해야 합니다.');
     }
 
-    if (reservation.isCancelled) {
-      // 이미 취소된 예약인지 확인
+    if (!reservation.active) {
       throw new BadRequestException('이미 취소된 예약입니다.');
     }
 
@@ -113,53 +131,17 @@ export class ReservationService {
       throw new BadRequestException('예약을 취소할 수 있는 기간이 아닙니다.');
     }
 
-    // 취소 이유 업데이트
-    reservation.cancelReason = UpdateReservationDto.cancelReason;
+    // 'active' 컬럼을 false로 설정하여 예약을 비활성화
+    reservation.active = false;
 
-    // 소프트 삭제를 통해 예약 취소 처리
-    reservation.isCancelled = true;
+    reservation.cancelReason = cancelReservationDto.cancelReason;
 
-    await this.reservationRepository.save(reservation);
+    // 소프트 삭제를 수행하여 deletedAt 컬럼에 삭제 시간 기록
+    await this.reservationRepository.softDelete(reservation);
 
     return {
       message: '해당 예약이 취소되었습니다.',
     };
-  }
-  async canCancelReservation(reservationId: number): Promise<boolean> {
-    const reservation = await this.findReservationById(reservationId);
-
-    const tourStartDate: Date = reservation.date;
-    console.log('투어 시작일:', tourStartDate);
-
-    let currentDate = new Date();
-    console.log('현재 날짜:', currentDate);
-
-    // 예약 취소 가능한 시간 범위 설정 (예: 투어 시작 전 48시간까지만 취소 가능)
-    const cancelDeadline = new Date(
-      tourStartDate.getTime() - 48 * 60 * 60 * 1000,
-    );
-
-    console.log('취소데드라인', cancelDeadline);
-    // 현재 날짜가 취소 데드라인보다 이전이면 취소 가능
-    return currentDate < cancelDeadline;
-  }
-
-  async getCancelledReservations(): Promise<Reservation[]> {
-    return this.reservationRepository.find({
-      where: { isCancelled: true },
-    });
-  }
-
-  private async findReservationById(
-    reservationId: number,
-  ): Promise<Reservation> {
-    const reservation = await this.reservationRepository.findOne({
-      where: { id: reservationId },
-    });
-    if (!reservation) {
-      throw new NotFoundException('해당 예약을 찾을 수 없습니다.');
-    }
-    return reservation;
   }
 
   // 예약 조회 메서드
@@ -168,7 +150,7 @@ export class ReservationService {
   }
 
   // 특정 예약 상세 조회
-  async findOne(reservationId: number): Promise<Reservation> {
+  async findReservationById(reservationId: number): Promise<Reservation> {
     const reservation = await this.reservationRepository.findOne({
       where: { id: reservationId },
     });

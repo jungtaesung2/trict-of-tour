@@ -14,7 +14,7 @@ import { ReservationService } from '../reservation/reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { TourService } from '../tour/tour.service';
 import { validate } from 'class-validator';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
 //   import { BoardGuard } from 'src/board/guards/board.guard';
 //   import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
@@ -67,13 +67,12 @@ export class ReservationController {
   @Patch('/:reservationId/cancel')
   async editReservaition(
     @Param('reservationId') reservationId: number,
-    @Body() UpdateReservationDto: UpdateReservationDto,
+    @Body() cancelReservationDto: CancelReservationDto,
     @Req() req: any,
   ) {
     try {
       const userId = req.user;
 
-      // 예약 취소 가능 여부 확인
       const canCancel =
         await this.ReservationService.canCancelReservation(reservationId);
 
@@ -81,14 +80,14 @@ export class ReservationController {
       if (canCancel) {
         const cancellationResult =
           await this.ReservationService.requestCancellation(
-            UpdateReservationDto,
+            cancelReservationDto,
             reservationId,
             userId,
           );
 
         return cancellationResult;
       } else {
-        return { message: '해당 예약은 취소할 수 없습니다.' };
+        return { statusCode: 200, message: '해당 예약은 취소할 수 없습니다.' };
       }
     } catch (error) {
       return { message: `${error}` };
@@ -104,7 +103,7 @@ export class ReservationController {
   // 예약 상세 조회
   @Get('/:reservationId')
   async findOne(@Param('reservationId') reservationId: number) {
-    return this.ReservationService.findOne(reservationId);
+    return this.ReservationService.findReservationById(reservationId);
   }
 
   // 예약 상태에 따라 조회
