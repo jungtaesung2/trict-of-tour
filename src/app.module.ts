@@ -7,7 +7,9 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Tour } from './tour/entities/tour.entity';
 import { Region } from './tour/entities/region.entity';
 import { TourModule } from './tour/tour.module';
-import { ReviewsModule } from './reviews/reviews.module';
+import { RedisService } from './redis/redis.service';
+import { RedisModule } from './redis/redis.module';
+// import { ReviewsModule } from './reviews/reviews.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -38,11 +40,14 @@ const typeOrmModuleOptions = {
         DB_PORT: Joi.number().required(),
         DB_NAME: Joi.string().required(),
         DB_SYNC: Joi.boolean().required(),
+        REDIS_HOST: Joi.string().required(), // Redis
+        REDIS_PORT: Joi.number().required(),
       }),
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     TourModule,
-    ReviewsModule,
+    // RedisModule,
+    // ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

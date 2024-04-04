@@ -86,16 +86,16 @@ export class Tour {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.tour)
-  reservations: Reservation[];
+  // @OneToMany(() => Reservation, (reservation) => reservation.tour)
+  // reservations: Reservation[];
 
   @OneToMany(() => Region, (region) => region.tour)
   regions: Region[];
 
-  @JoinColumn({ name: 'guideId' })
-  @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
-  guide: Guide;
+  // @JoinColumn({ name: 'guideId' })
+  // @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
+  // guide: Guide;
 
-  @OneToOne(() => Like, (like) => like.tour)
-  like: Like;
+  // @OneToOne(() => Like, (like) => like.tour)
+  // like: Like;
 }

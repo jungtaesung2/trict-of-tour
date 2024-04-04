@@ -15,8 +15,8 @@ export class TourService {
   constructor(
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
-    @InjectRepository(Guide)
-    private readonly guideRepository: Repository<Guide>,
+    // @InjectRepository(Guide)
+    // private readonly guideRepository: Repository<Guide>,
     @InjectRepository(Region)
     private readonly regionRepository: Repository<Region>,
   ) {}
@@ -37,13 +37,13 @@ export class TourService {
     } = createTourDto;
 
     // 가이드 존재 확인
-    const guide = await this.guideRepository.findOne({
-      where: { id: guideId },
-    });
+    // const guide = await this.guideRepository.findOne({
+    //   where: { id: guideId },
+    // });
 
-    if (!guide) {
-      throw new BadRequestException('가이드가 존재하지 않습니다.');
-    }
+    // if (!guide) {
+    //   throw new BadRequestException('가이드가 존재하지 않습니다.');
+    // }
 
     // 지역설정
     const region = await this.regionRepository.findOne({
@@ -90,6 +90,12 @@ export class TourService {
     // 투어타입 그대로
 
     // 인원 제한 엔티티에 재현
+    if (
+      parseInt(createTourDto.people) < 1 ||
+      parseInt(createTourDto.people) > 10
+    ) {
+      throw new BadRequestException('인원은 1명이상 10명 이하여야합니다.');
+    }
 
     const tour = await this.tourRepository.save({
       guideId,
@@ -108,14 +114,20 @@ export class TourService {
     return tour;
   }
 
-  // 투어 조회
-  async findAll() {
-    return `This action returns all tour`;
-  }
+  // 투어 조회 >> 메인페이지에 있는 가이드가 등록한 투어가 보여야한다.
+  // async findAll(guideId: number) {
+  //   return await this.tourRepository.findOneBy({ where: guideId });
+  // }
 
   // 투어 상세 조회
   async findOne(id: number) {
-    return `This action returns a #${id} tour`;
+    const tour = await this.tourRepository.findOneBy({ id });
+
+    if (!tour) {
+      throw new NotFoundException('투어가 없습니다.');
+    }
+
+    return tour;
   }
 
   // 투어 수정 guideId: number
@@ -142,16 +154,18 @@ export class TourService {
   }
 
   // 투어 삭제
-  async remove(id: number) {
-    return `This action removes a #${id} tour`;
+  async removeTour(id: number) {
+    // 투어 확인
+    const tour = await this.tourRepository.findOneBy({ id });
+    if (!tour) {
+      throw new BadRequestException('등록된 투어가 없습니다.');
+    }
+
+    // 가이드 확인
+    //   if (tour.guideId !== guideId) {
+    //     throw new BadRequestException('삭제할 권한이 없습니다.');
+    //   }
+
+    await this.tourRepository.delete({ id });
   }
 }
-// function InjectableRepository(
-//   Tour: typeof Tour,
-// ): (
-//   target: typeof TourService,
-//   propertyKey: undefined,
-//   parameterIndex: 0,
-// ) => void {
-//   throw new Error('Function not implemented.');
-// }

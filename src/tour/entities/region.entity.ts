@@ -12,11 +12,10 @@ export class Region {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
 
-  @Column()
+  @Column({ type: 'varchar', nullable: false })
   regionName: string;
 
-  @JoinColumn({ name: 'regionId' })
-  @Column()
+  @JoinColumn({ name: 'tourId' })
   @ManyToOne(() => Tour, (tour) => tour.regions, { onDelete: 'CASCADE' })
   tour: Tour;
 }
