@@ -100,15 +100,15 @@ export class ReservationController {
     return this.ReservationService.findAllmyReservations(userId);
   }
 
+  // 예약 상태에 따라 조회
+  @Get('/status')
+  async getReservationsByStatus(@Query('status') status: Status) {
+    return this.ReservationService.findReservationsByStatus(status);
+  }
+
   // 예약 상세 조회
   @Get('/:reservationId')
   async findOne(@Param('reservationId') reservationId: number) {
     return this.ReservationService.findReservationById(reservationId);
-  }
-
-  // 예약 상태에 따라 조회
-  @Get()
-  async getReservationsByStatus(@Query('status') status: Status) {
-    return this.ReservationService.findReservationsByStatus(status);
   }
 }

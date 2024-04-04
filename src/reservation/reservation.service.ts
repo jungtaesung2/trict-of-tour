@@ -123,7 +123,7 @@ export class ReservationService {
       throw new BadRequestException('취소 이유를 제공해야 합니다.');
     }
 
-    if (!reservation.active) {
+    if (!reservation.status) {
       throw new BadRequestException('이미 취소된 예약입니다.');
     }
 
@@ -132,12 +132,15 @@ export class ReservationService {
     }
 
     // 'active' 컬럼을 false로 설정하여 예약을 비활성화
-    reservation.active = false;
+    // reservation.active = false;
+
+    reservation.status = Status.CANCEL;
 
     reservation.cancelReason = cancelReservationDto.cancelReason;
 
     // 소프트 삭제를 수행하여 deletedAt 컬럼에 삭제 시간 기록
-    await this.reservationRepository.softDelete(reservation);
+    await this.reservationRepository.save(reservation);
+    // await this.reservationRepository.softDelete(reservationId);
 
     return {
       message: '해당 예약이 취소되었습니다.',
@@ -164,25 +167,10 @@ export class ReservationService {
   async findReservationsByStatus(status: Status): Promise<Reservation[]> {
     let reservations: Reservation[];
 
-    switch (status) {
-      case Status.CANCEL:
-        reservations = await this.reservationRepository.find({
-          where: { status: Status.CANCEL },
-        });
-        break;
-      case Status.ONGOING:
-        reservations = await this.reservationRepository.find({
-          where: { status: Status.ONGOING },
-        });
-        break;
-      case Status.FINISH:
-        reservations = await this.reservationRepository.find({
-          where: { status: Status.FINISH },
-        });
-        break;
-      default:
-        throw new Error('올바르지 않은 상태입니다.');
-    }
+    console.log({ status: status });
+    reservations = await this.reservationRepository.find({
+      where: { status: status },
+    });
 
     return reservations;
   }

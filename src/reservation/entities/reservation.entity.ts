@@ -75,7 +75,7 @@ export class Reservation {
   updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt!: Date | null;
+  deletedAt: Date;
 
   // @ManyToOne(() => User, (user) => user.reservations)
   // @JoinColumn({ name: 'userId' })
