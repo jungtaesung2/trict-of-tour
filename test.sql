@@ -1,1 +1,1 @@
-create database 'FinalProject'
+create database FinalProject

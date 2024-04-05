@@ -13,6 +13,7 @@ import { TourType } from '../types/tourtypes.enum';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import { Region } from './region.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 
 @Entity({ name: 'tours' })
 export class Tour {
@@ -86,11 +87,15 @@ export class Tour {
 
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
+  
+  @OneToMany(() => Reservation, (reservations) => reservations.tour)
+  reservations: Reservation[];
+  @OneToMany(() => Review, (review) => review.tour) 
+  reviews : Review[]
 
 //   @OneToMany(() => Reservation, (reservation) => reservation.tour)
 //   reservations: Reservation[];
-  @OneToMany(() => Reservation, (reservations) => reservations.tour)
-  reservations: Reservation[];
+  
 
 //   @OneToMany(() => Region, (region) => region.tour)
 //   regions: Region[];
@@ -107,4 +112,5 @@ export class Tour {
 
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;
+  
 }

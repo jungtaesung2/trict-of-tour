@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Tour } from 'src/tour/entities/tour.entity';
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'reviews' })
 export class Review {
     @PrimaryGeneratedColumn()
     id: number;
@@ -20,9 +21,15 @@ export class Review {
     @Column({ type: 'varchar', length: 255 })
     image: string;
 
-    @Column({ type: 'datetime' })
+    @CreateDateColumn()
     createdAt: Date;
 
-    @Column({ type: 'datetime' })
+    @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToOne(() => Tour, (tour) => tour.reviews)
+    @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
+    tour: Tour;
+
 }
+
