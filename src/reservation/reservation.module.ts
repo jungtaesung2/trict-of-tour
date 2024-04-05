@@ -6,13 +6,14 @@ import { Reservation } from './entities/reservation.entity';
 import { TourService } from 'src/tour/tour.service';
 import { Tour } from '../tour/entities/tour.entity';
 import { Region } from 'src/tour/entities/region.entity';
+import { ReservationSchedulerService } from 'src/scheduler/scheduler.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Reservation, Tour, Region]) /*UserModule*/,
   ],
   controllers: [ReservationController],
-  providers: [ReservationService, TourService],
-  exports: [TypeOrmModule],
+  providers: [ReservationService, TourService, ReservationSchedulerService],
+  exports: [TypeOrmModule, ReservationService],
 })
 export class ReservationModule {}

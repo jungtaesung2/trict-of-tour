@@ -64,10 +64,6 @@ export class Reservation {
   @Column({ type: 'enum', enum: Status, default: Status.ONGOING })
   status: Status;
 
-  @IsBoolean()
-  @Column({ default: true })
-  active: boolean;
-
   @CreateDateColumn()
   createdAt: Date;
 
