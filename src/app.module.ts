@@ -11,6 +11,7 @@ import { ReservationModule } from './reservation/reservation.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/entities/review.entity';
 import { Reservation } from './reservation/entities/reservation.entity';
+import { UserModule } from './user/user.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -48,6 +49,7 @@ const typeOrmModuleOptions = {
     TourModule,
     ReviewsModule,
     ReservationModule,
+    UserModule,
   ],
 
   controllers: [AppController],
