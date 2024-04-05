@@ -15,10 +15,12 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 // import { User } from './user.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
 import { Status } from '../types/status.type';
+import { Review } from 'src/reviews/entities/review.entity';
 
 @Entity({ name: 'reservations' })
 export class Reservation {
@@ -70,6 +72,9 @@ export class Reservation {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  // @Column({ type: 'timestamp', nullable: true })
+  // cancelledAt: Date; // 추가된 cancelledAt 속성
+
   @DeleteDateColumn()
   deletedAt: Date;
 
@@ -80,4 +85,7 @@ export class Reservation {
   @ManyToOne(() => Tour, (tour) => tour.reservations)
   @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
   tour: Tour;
+
+  @OneToMany(() => Review, (reviews) => reviews.reservations)
+  reviews: Review[];
 }
