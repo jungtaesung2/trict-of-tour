@@ -11,6 +11,8 @@ import { ReservationModule } from './reservation/reservation.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/entities/review.entity';
 import { Reservation } from './reservation/entities/reservation.entity';
+import { ReservationSchedulerService } from './scheduler/scheduler.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -45,12 +47,13 @@ const typeOrmModuleOptions = {
       }),
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
+    ScheduleModule.forRoot(),
     TourModule,
     ReviewsModule,
     ReservationModule,
   ],
 
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ReservationSchedulerService],
 })
 export class AppModule {}

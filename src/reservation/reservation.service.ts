@@ -5,12 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateReservationDto } from '../reservation/dto/create-reservation.dto';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Reservation } from '../reservation/entities/reservation.entity';
 import { Tour } from '../tour/entities/tour.entity';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
-import { privateDecrypt } from 'crypto';
 
 @Injectable()
 export class ReservationService {
@@ -74,7 +73,6 @@ export class ReservationService {
       firstname: CreateReservationDto.firstname,
       lastname: CreateReservationDto.lastname,
       specialRequests: CreateReservationDto.specialRequests,
-      active: true,
     });
 
     // 예약 정보 저장
@@ -173,5 +171,28 @@ export class ReservationService {
     });
 
     return reservations;
+  }
+
+  async processCompletedReservations() {
+    try {
+      // 현재 시간 이후에 완료된 예약을 조회
+      const currentTime = new Date();
+      const completedReservations = await this.reservationRepository.find({
+        where: { date: LessThan(currentTime) },
+      });
+
+      // 조회된 예약들의 상태를 "완료"로 변경하고 저장
+      const updatePromises = completedReservations.map(async (reservation) => {
+        reservation.status = Status.FINISH;
+        await this.reservationRepository.save(reservation);
+      });
+
+      // 모든 예약 상태 변경 작업이 완료될 때까지 기다림
+      await Promise.all(updatePromises);
+
+      console.log('All reservations updated successfully.');
+    } catch (error) {
+      console.error('Error processing completed reservations:', error);
+    }
   }
 }
