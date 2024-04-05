@@ -66,6 +66,16 @@ export class ReservationService {
 
     const paymentAmount: number = +pricePerPerson * CreateReservationDto.people;
 
+    const firstnameRegex = /^[a-zA-Z\s]*$/;
+    const lastnameRegex = /^[a-zA-Z\s]*$/;
+
+    if (
+      !firstnameRegex.test(CreateReservationDto.firstname) ||
+      lastnameRegex.test(CreateReservationDto.lastname)
+    ) {
+      throw new BadRequestException('영어 이름이 작성되어야 합니다.');
+    }
+
     const newReservation = this.reservationRepository.create({
       date: selectDate,
       paymentAmount: paymentAmount.toString(),

@@ -4,7 +4,7 @@ import { ReservationService } from 'src/reservation/reservation.service';
 
 @Injectable()
 export class ReservationSchedulerService {
-  private readonly logger = new Logger(ReservationSchedulerService.name);
+  //   private readonly logger = new Logger(ReservationSchedulerService.name);
 
   constructor(private readonly reservationService: ReservationService) {}
 
