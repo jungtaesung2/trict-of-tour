@@ -90,7 +90,7 @@ export class Tour {
   
   @OneToMany(() => Reservation, (reservations) => reservations.tour)
   reservations: Reservation[];
-  @OneToMany(() => Review, (review) => review.tour) 
+  @OneToMany(() => Review, (reviews) => reviews.tour) 
   reviews : Review[]
 
 //   @OneToMany(() => Reservation, (reservation) => reservation.tour)

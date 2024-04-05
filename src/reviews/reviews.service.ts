@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateReviewDto } from './dto/create-review.dto';
+import { CreateReviewDto } from '../reviews/dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Review } from './entities/review.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,34 +10,34 @@ import { Reservation } from 'src/reservation/entities/reservation.entity';
 @Injectable()
 export class ReviewsService {
     constructor(
-        @InjectRepository(Review)
-        private readonly reviewRepository: Repository<Review>,
         @InjectRepository(Tour)
-        private readonly tourRepository: Repository<Tour>,
+      private readonly tourRepository: Repository<Tour>,
         @InjectRepository(Reservation)
         private readonly reservationRepository: Repository<Reservation>,
+        @InjectRepository(Review)
+        private readonly reviewRepository: Repository<Review>,        
     ) {}
 
-    async create(tourId : number, createReviewDto: CreateReviewDto): Promise<{review: Review}> {
-        const tour = await this.tourRepository.find({where : {id:tourId}});
+    async create(tourId : number, reservationId : number, createReviewDto: CreateReviewDto): Promise<{review: Review}> {
+        const tour = await this.tourRepository.findOne({where : {id : tourId}});
+        console.log('투어Id', tour);
         if (!tour) {
             throw new NotFoundException(`해당하는 투어가 없습니다.`);
         }
-        const reservation = await this.reservationRepository.find({where : {id:createReviewDto.reservationId}});
+        const reservation = await this.reservationRepository.find({where : {id : reservationId}});
         if (!reservation) {
             throw new NotFoundException(`해당하는 예약이 없습니다.`);
         }
+
         //reservation의 userid랑 로그인한 userid랑 일치하는지!
       
-      const newReview = {
-          comment: createReviewDto.comment,
-          star: createReviewDto.star,
-          reservationId : createReviewDto.reservationId,
-          image: createReviewDto.image,
-          tour : {id : tourId}
-        };
-        const createReview = await this.reviewRepository.create(newReview);
-        this.reviewRepository.save(createReview)
+      const newReview = this.reviewRepository.create({
+        comment : createReviewDto.comment,
+        star: createReviewDto.star,
+        image: createReviewDto.image,
+        tour : {id : tourId}
+      });
+        const createReview = await this.reviewRepository.save(newReview)
         return {review:createReview}
     }
     // 리뷰 조회
@@ -46,9 +46,9 @@ export class ReviewsService {
   }
     
     //리뷰 전체조회
-    async findAll(tourId: number): Promise<Review[]> {
-      return this.reviewRepository.find({ where: { id : tourId } });
-  }
+    async findOneByTourId(tourId: number): Promise<Review[]> {
+      return await this.reviewRepository.find({ where: { tour: { id: tourId } } });
+    }
     //리뷰 수정
     async update(reviewId: number, updateReviewDto: UpdateReviewDto): Promise<{review: Review}> {
         const review = await this.findOne(reviewId);

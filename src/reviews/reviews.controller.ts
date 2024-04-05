@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from '@nestjs/common';
-import { ReviewsService } from './reviews.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+
 
 
 @Controller('reviews')
@@ -10,17 +11,16 @@ export class ReviewsController {
 
     //리뷰 작성
 
-    @Post()
-    create(@Param('tourId') tourId : number, @Body() createReviewDto : CreateReviewDto) {
-        return this.ReviewsService.create(tourId, createReviewDto);
-    
-    // 리뷰 전체조회
+    @Post('/:tourId')
+    create(@Param() params: { tourId: number, reservationId: number }, @Body() createReviewDto : CreateReviewDto) {
+        return this.ReviewsService.create(params.tourId, params.reservationId, createReviewDto);
     }
-    @Get()
-    findByTourId(@Query('tourId') tourId : string) {
-        console.log(tourId)
-        return this.ReviewsService.findAll(+tourId);
-    }
+
+    @Get('/list')
+    async findByTourId(@Query('tourId') tourId: number) {
+    console.log(tourId);
+    return this.ReviewsService.findOneByTourId(tourId);
+}
     // 리뷰 상세조회
     @Get(':reviewId')
     findOne(@Param('reviewId') reviewId: number) {
