@@ -13,6 +13,9 @@ import { Review } from './reviews/entities/review.entity';
 import { Reservation } from './reservation/entities/reservation.entity';
 import { ReservationSchedulerService } from './scheduler/scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UserModule } from './user/user.module';
+import { GuideModule } from './guide/guide.module';
+
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -51,6 +54,8 @@ const typeOrmModuleOptions = {
     TourModule,
     ReviewsModule,
     ReservationModule,
+    UserModule,
+    GuideModule,
   ],
 
   controllers: [AppController],
