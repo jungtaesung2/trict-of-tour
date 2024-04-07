@@ -10,53 +10,51 @@ import { Reservation } from '../reservation/entities/reservation.entity';
 import { Tour } from '../tour/entities/tour.entity';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
-import { date } from 'joi';
 
 @Injectable()
 export class ReservationService {
   constructor(
+    // @InjectRepository(DataSource)
+    // private readonly dataSource: DataSource,
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
     @InjectRepository(Reservation)
     private readonly reservationRepository: Repository<Reservation>,
-    // @InjectRepository(DataSource)
-    // private readonly dataSourceRepository: Repository<DataSource>,
   ) {}
-
-  // 01.예약 가능한 날짜 확인 메서드
-  async isDateValid(tourId: number, reservationDate: Date): Promise<boolean> {
-    const { startDate, endDate } = await this.tourRepository
-      .createQueryBuilder('tour')
-      .select('tour.startDate', 'startDate')
-      .addSelect('tour.endDate', 'endDate')
-      .where('tour.id = :id', { id: tourId })
-      .getRawOne();
-
-    if (!startDate || !endDate) {
-      throw new NotFoundException(
-        '해당하는 투어의 정보를 불러오지 못하였습니다.',
-      );
-    }
-
-    // @tourId를  @Query 데코레이터로 가져올때
-    // 투어의 시작일과 종료일을 가져올 때 tourId를 사용하여 해당 투어의 정보를 가져옴
-    // const tour = await this.tourRepository.findOne({ where: { id: tourId } });
-    // if (!tour) {
-    //   throw new NotFoundException(
-    //     '해당하는 투어의 정보를 불러오지 못하였습니다.',
-    //   );
-    // }
-    // const startDate = tour.startDate;
-    // const endDate = tour.endDate;
-
-    console.log('startDate:', startDate);
-    console.log('endDate:', endDate);
-
-    return reservationDate >= startDate && reservationDate <= endDate;
-  }
 
   // 02. 예약 작성 메서드
   async create(
+    CreateReservationDto: CreateReservationDto,
+    userId: number,
+    tourId: number,
+  ): Promise<{ message: string; reservation: Reservation }> {
+    const queryRunner =
+      this.reservationRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const result = await this.createReservation(
+        queryRunner,
+        CreateReservationDto,
+        userId,
+        tourId,
+      );
+
+      await queryRunner.commitTransaction();
+      return result;
+    } catch (error) {
+      // 트랜잭션 롤백
+      await queryRunner.rollbackTransaction();
+      throw error; // 에러 재 throw
+    } finally {
+      // QueryRunner 반환
+      await queryRunner.release();
+    }
+  }
+
+  private async createReservation(
+    queryRunner: any, // QueryRunner 대신 any 타입으로 지정
     CreateReservationDto: CreateReservationDto,
     userId: number,
     tourId: number,
@@ -122,14 +120,34 @@ export class ReservationService {
     });
 
     // 예약 정보 저장
-    const createdReservation =
-      await this.reservationRepository.save(newReservation);
+    const createdReservation = await queryRunner.manager.save(newReservation);
 
     return {
       message: '예약이 성공적으로 완료되었습니다.',
       reservation: createdReservation,
       // 투어에 대한 간단한 정보들 투어이미지, 투어이름, 투어타입, 투어지역, 가격만 나오게?
     };
+  }
+
+  // 01.예약 가능한 날짜 확인 메서드
+  async isDateValid(tourId: number, reservationDate: Date): Promise<boolean> {
+    const { startDate, endDate } = await this.tourRepository
+      .createQueryBuilder('tour')
+      .select('tour.startDate', 'startDate')
+      .addSelect('tour.endDate', 'endDate')
+      .where('tour.id = :id', { id: tourId })
+      .getRawOne();
+
+    if (!startDate || !endDate) {
+      throw new NotFoundException(
+        '해당하는 투어의 정보를 불러오지 못하였습니다.',
+      );
+    }
+
+    console.log('startDate:', startDate);
+    console.log('endDate:', endDate);
+
+    return reservationDate >= startDate && reservationDate <= endDate;
   }
 
   // 유틸리티 메서드로 현재 시간과 취소 데드라인 비교하기
@@ -156,44 +174,57 @@ export class ReservationService {
     cancelReservationDto: CancelReservationDto,
     userId: number,
   ): Promise<{ message: string }> {
-    const reservation = await this.reservationRepository.findOne({
-      where: { id: reservationId },
-    });
+    const queryRunner =
+      this.reservationRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!reservation) {
-      throw new NotFoundException('해당 예약을 찾을 수 없습니다.');
+    try {
+      const reservation = await queryRunner.manager.findOne(Reservation, {
+        where: { id: reservationId },
+      });
+
+      if (!reservation) {
+        throw new NotFoundException('해당 예약을 찾을 수 없습니다.');
+      }
+
+      if (!cancelReservationDto.cancelReason) {
+        throw new BadRequestException('취소 이유를 제공해야 합니다.');
+      }
+
+      if (!(await this.canCancelReservation(reservationId))) {
+        throw new BadRequestException('예약을 취소할 수 있는 기간이 아닙니다.');
+      }
+
+      if (reservation.status === Status.CANCEL) {
+        throw new BadRequestException('이미 취소된 예약입니다.');
+      }
+
+      // 'active' 컬럼을 false로 설정하여 예약을 비활성화
+      // reservation.active = false;
+
+      reservation.status = Status.CANCEL;
+      reservation.cancelReason = cancelReservationDto.cancelReason;
+
+      reservation.updatedAt = new Date();
+
+      await queryRunner.manager.save(reservation);
+
+      await queryRunner.commitTransaction();
+
+      // 소프트 삭제를 수행하여 deletedAt 컬럼에 삭제 시간 기록
+      // await this.reservationRepository.softDelete(reservationId);
+
+      return {
+        message: '해당 예약이 취소되었습니다.',
+      };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-
-    if (!cancelReservationDto.cancelReason) {
-      throw new BadRequestException('취소 이유를 제공해야 합니다.');
-    }
-
-    if (!(await this.canCancelReservation(reservationId))) {
-      throw new BadRequestException('예약을 취소할 수 있는 기간이 아닙니다.');
-    }
-
-    if (reservation.status === Status.CANCEL) {
-      throw new BadRequestException('이미 취소된 예약입니다.');
-    }
-
-    // 'active' 컬럼을 false로 설정하여 예약을 비활성화
-    // reservation.active = false;
-
-    reservation.status = Status.CANCEL;
-    reservation.cancelReason = cancelReservationDto.cancelReason;
-
-    reservation.updatedAt = new Date();
-
-    await this.reservationRepository.save(reservation);
-
-    // 소프트 삭제를 수행하여 deletedAt 컬럼에 삭제 시간 기록
-    // await this.reservationRepository.softDelete(reservationId);
-
-    return {
-      message: '해당 예약이 취소되었습니다.',
-    };
   }
-
   // 예약 조회 메서드
   async findAllmyReservations(userId: number): Promise<Reservation[]> {
     return await this.reservationRepository.find({ where: { userId } });
