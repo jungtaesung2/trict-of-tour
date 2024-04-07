@@ -25,28 +25,29 @@ export class ReservationService {
 
   // 01.예약 가능한 날짜 확인 메서드
   async isDateValid(tourId: number, reservationDate: Date): Promise<boolean> {
-    // const { startDate, endDate } = await this.tourRepository
-    //   .createQueryBuilder('tour')
-    //   .select('tour.startDate', 'startDate')
-    //   .addSelect('tour.endDate', 'endDate')
-    //   .where('tour.id = :id', { id: tourId })
-    //   .getRawOne();
+    const { startDate, endDate } = await this.tourRepository
+      .createQueryBuilder('tour')
+      .select('tour.startDate', 'startDate')
+      .addSelect('tour.endDate', 'endDate')
+      .where('tour.id = :id', { id: tourId })
+      .getRawOne();
 
-    // if (!startDate || !endDate) {
-    //   throw new NotFoundException(
-    //     '해당하는 투어의 정보를 불러오지 못하였습니다.',
-    //   );
-    // }
-
-    // 수정된 부분: 투어의 시작일과 종료일을 가져올 때 tourId를 사용하여 해당 투어의 정보를 가져옴
-    const tour = await this.tourRepository.findOne({ where: { id: tourId } });
-    if (!tour) {
+    if (!startDate || !endDate) {
       throw new NotFoundException(
         '해당하는 투어의 정보를 불러오지 못하였습니다.',
       );
     }
-    const startDate = tour.startDate;
-    const endDate = tour.endDate;
+
+    // @tourId를  @Query 데코레이터로 가져올때
+    // 투어의 시작일과 종료일을 가져올 때 tourId를 사용하여 해당 투어의 정보를 가져옴
+    // const tour = await this.tourRepository.findOne({ where: { id: tourId } });
+    // if (!tour) {
+    //   throw new NotFoundException(
+    //     '해당하는 투어의 정보를 불러오지 못하였습니다.',
+    //   );
+    // }
+    // const startDate = tour.startDate;
+    // const endDate = tour.endDate;
 
     console.log('startDate:', startDate);
     console.log('endDate:', endDate);

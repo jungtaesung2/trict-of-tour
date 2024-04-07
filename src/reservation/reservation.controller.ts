@@ -27,9 +27,9 @@ export class ReservationController {
     private readonly TourService: TourService,
   ) {}
 
-  @Post()
+  @Post('/:tourId')
   async CreateReservation(
-    @Query('tourId') tourId: number,
+    @Param('tourId') tourId: number,
     @Body() CreateReservationDto: CreateReservationDto,
     @Req() req: any,
   ) {
