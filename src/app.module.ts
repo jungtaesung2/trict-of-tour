@@ -11,6 +11,10 @@ import { ReservationModule } from './reservation/reservation.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/entities/review.entity';
 import { Reservation } from './reservation/entities/reservation.entity';
+import { MileagesService } from './mileages/mileages.service';
+import { MileagesController } from './mileages/mileages.controller';
+import { MileagesModule } from './mileages/mileages.module';
+import { Mileage } from './mileages/entities/mileages.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -22,7 +26,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review, Reservation],
+    entities: [Tour, Region, Review, Reservation, Mileage],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -48,9 +52,10 @@ const typeOrmModuleOptions = {
     TourModule,
     ReviewsModule,
     ReservationModule,
+    MileagesModule,
   ],
 
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, MileagesController],
+  providers: [AppService, MileagesService],
 })
 export class AppModule {}
