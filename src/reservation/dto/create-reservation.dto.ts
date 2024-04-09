@@ -1,7 +1,6 @@
 import { PickType } from '@nestjs/mapped-types';
 import { Reservation } from '../entities/reservation.entity';
-import { IsDate, IsNotEmpty } from 'class-validator';
-import { Column } from 'typeorm';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateReservationDto extends PickType(Reservation, [
   `date`,

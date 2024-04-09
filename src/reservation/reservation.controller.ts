@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   Controller,
   Get,
@@ -27,41 +27,38 @@ export class ReservationController {
     private readonly TourService: TourService,
   ) {}
 
-  @Post(':tourId')
+  @Post('/:tourId')
   async CreateReservation(
     @Param('tourId') tourId: number,
     @Body() CreateReservationDto: CreateReservationDto,
     @Req() req: any,
   ) {
-    try {
-      // 사용자 ID 가져오기
-      const userId = req.user;
+    // 사용자 ID 가져오기
+    const userId = req.user;
 
-      // 주어진 투어 ID에 해당하는 투어가 있는지 확인
-      const tour = await this.TourService.findOne(+tourId);
+    // 주어진 투어 ID에 해당하는 투어가 있는지 확인
 
-      if (!tour) {
-        throw new NotFoundException('해당하는 투어를 찾지 못하였습니다.');
-      }
-
-      const isValidDate = await this.ReservationService.isDateValid(
-        tourId,
-        new Date(CreateReservationDto.date),
-      );
-      if (!isValidDate) {
-        throw new Error('예약할 수 없는 날짜입니다.');
-      }
-      // 예약 생성
-      const { message, reservation } = await this.ReservationService.create(
-        CreateReservationDto,
-        userId,
-        tourId,
-      );
-
-      return { statusCode: 200, message, reservation };
-    } catch (error) {
-      throw new Error(`${error}`);
+    const tour = await this.TourService.findOne(+tourId);
+    console.log('투어정보', tour);
+    if (!tour) {
+      throw new NotFoundException('해당하는 투어를 찾지 못하였습니다.');
     }
+
+    const isValidDate = await this.ReservationService.isDateValid(
+      tourId,
+      new Date(CreateReservationDto.date),
+    );
+    if (!isValidDate) {
+      throw new BadRequestException('예약할 수 없는 날짜입니다.');
+    }
+    // 예약 생성
+    const { message, reservation } = await this.ReservationService.create(
+      CreateReservationDto,
+      userId,
+      tourId,
+    );
+
+    return { statusCode: 200, message, reservation };
   }
 
   @Patch('/:reservationId/cancel')
@@ -80,8 +77,8 @@ export class ReservationController {
       if (canCancel) {
         const cancellationResult =
           await this.ReservationService.requestCancellation(
-            cancelReservationDto,
             reservationId,
+            cancelReservationDto,
             userId,
           );
 
