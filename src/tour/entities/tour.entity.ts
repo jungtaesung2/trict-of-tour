@@ -11,18 +11,19 @@ import {
 } from 'typeorm';
 import { TourType } from '../types/tourtypes.enum';
 import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
-import { Region } from './region.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Review } from 'src/reviews/entities/review.entity';
+import { Region } from './region.entity';
 
 @Entity({ name: 'tours' })
 export class Tour {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @IsNumber()
-  @IsNotEmpty({ message: '지역 ID를 입력해주세요.' })
-  @Column({ type: 'int', unsigned: true, name: 'regionId', nullable: false })
-  regionId: number;
+  // @IsNumber()
+  // @IsNotEmpty({ message: '지역 ID를 입력해주세요.' })
+  // @Column({ type: 'int', unsigned: true, name: 'regionId', nullable: false })
+  // regionId: number;
 
   @IsNumber()
   @IsNotEmpty({ message: '가이드 ID를 입력해주세요.' })
@@ -85,18 +86,16 @@ export class Tour {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
-  @OneToMany(() => Reservation, (reservations) => reservations.tour)
+  @OneToMany(() => Reservation, (reservation) => reservation.tour)
   reservations: Reservation[];
 
-//   @OneToMany(() => Region, (region) => region.tour)
-//   regions: Region[];
+  @OneToMany(() => Review, (review) => review.tour)
+  reviews: Review[];
 
-//   @JoinColumn({ name: 'guideId' })
-//   @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
-//   guide: Guide;
+  @JoinColumn({ name: 'regionId' })
+  @ManyToOne(() => Region, (region) => region.tours, { onDelete: 'CASCADE' })
+  region: Region;
 
-//   @OneToOne(() => Like, (like) => like.tour)
-//   like: Like;
   // @JoinColumn({ name: 'guideId' })
   // @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
   // guide: Guide;
