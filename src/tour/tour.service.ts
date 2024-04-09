@@ -6,9 +6,10 @@ import {
 import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
 import { Tour } from './entities/tour.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Region } from './entities/region.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindAllTourDto } from './dto/findAll-tour.dto';
 
 @Injectable()
 export class TourService {
@@ -20,23 +21,21 @@ export class TourService {
     @InjectRepository(Region)
     private readonly regionRepository: Repository<Region>,
   ) {}
-  async createTour(createTourDto: CreateTourDto) {
+  async createTour(createTourDto: CreateTourDto, url: string) {
     const {
       guideId,
-      regionId,
       title,
       startDate,
       endDate,
       price,
       tourType,
       people,
-      image,
       content,
       latitude,
       longitude,
+      regionId,
     } = createTourDto;
 
-    // // 가이드 존재 확인
     // const guide = await this.guideRepository.findOne({
     //   where: { id: guideId },
     // });
@@ -44,14 +43,6 @@ export class TourService {
     // if (!guide) {
     //   throw new BadRequestException('가이드가 존재하지 않습니다.');
     // }
-
-    // 지역설정
-    const region = await this.regionRepository.findOne({
-      where: { id: regionId },
-    });
-    if (region) {
-      throw new BadRequestException('지역이 존재하지 않습니다.');
-    }
 
     // 날짜 설정
     const pattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -67,6 +58,10 @@ export class TourService {
       );
     }
 
+    // 시간 메서드 따로 구분할 수 있는거
+    //  시작일 , 만기일 두가지로 가능
+    //if (startDate >= endDate) { throw new BadRequestException('시작일은 종료일보다 이전이어야 합니다.'); }
+
     const today = new Date();
     const newStartDate = new Date(startDate);
     const newEndDate = new Date(endDate);
@@ -79,7 +74,7 @@ export class TourService {
       throw new BadRequestException('유효한 만기일 날짜 형식이 아닙니다.');
     }
 
-    if (newStartDate.getTime() > today.getTime()) {
+    if (newStartDate.getTime() <= today.getTime()) {
       throw new BadRequestException('시작일은 오늘 이후여야 합니다.');
     }
 
@@ -90,32 +85,75 @@ export class TourService {
     // 투어타입 그대로
 
     // 인원 제한 엔티티에 재현
+    if (
+      parseInt(createTourDto.people) < 1 ||
+      parseInt(createTourDto.people) > 10
+    ) {
+      throw new BadRequestException('인원은 1명이상 10명 이하여야합니다.');
+    }
+
+    //  지역id 가지고 오면 지역이름으로 대체가 되야는데
+    const region = await this.regionRepository.findOneBy({ id: regionId });
+
+    if (!region) {
+      throw new NotFoundException('해당 지역을 찾을 수 없습니다.');
+    }
 
     const tour = await this.tourRepository.save({
       guideId,
-      regionId,
       title,
       startDate,
       endDate,
       price,
       tourType,
       people,
-      image,
+      image: url,
       content,
       latitude,
       longitude,
+      region: { id: regionId },
     });
     return tour;
   }
 
-  // 투어 조회
-  async findAll() {
-    return `This action returns all tour`;
+  // 투어 조회 >> 메인페이지에 있는 가이드가 등록한 투어가 보여야한다.검색 기능추가
+  async findAllTour({ keyword, tourType }: FindAllTourDto) {
+    return await this.tourRepository.find({
+      where: {
+        ...(keyword && { title: Like(`%${keyword}%`) }),
+        ...(tourType && { tourType }),
+      },
+    });
   }
 
   // 투어 상세 조회
   async findOne(id: number) {
-    return `This action returns a #${id} tour`;
+    const tour = await this.tourRepository.findOne({
+      where: { id },
+      relations: { region: true },
+    });
+
+    if (!tour) {
+      throw new NotFoundException('투어가 없습니다.');
+    }
+
+    // tour.region = tour.region.regionName
+
+    return {
+      id: tour.id,
+      guideId: tour.guideId,
+      title: tour.title,
+      startDate: tour.startDate,
+      endDate: tour.endDate,
+      price: tour.price,
+      tourType: tour.tourType,
+      people: tour.people,
+      image: tour.image,
+      content: tour.content,
+      latitude: tour.latitude,
+      longitude: tour.longitude,
+      region: tour.region.regionName,
+    };
   }
 
   // 투어 수정 guideId: number
@@ -142,16 +180,18 @@ export class TourService {
   }
 
   // 투어 삭제
-  async remove(id: number) {
-    return `This action removes a #${id} tour`;
+  async removeTour(id: number) {
+    // 투어 확인
+    const tour = await this.tourRepository.findOneBy({ id });
+    if (!tour) {
+      throw new BadRequestException('등록된 투어가 없습니다.');
+    }
+
+    // 가이드 확인
+    //   if (tour.guideId !== guideId) {
+    //     throw new BadRequestException('삭제할 권한이 없습니다.');
+    //   }
+
+    await this.tourRepository.delete({ id });
   }
 }
-// function InjectableRepository(
-//   Tour: typeof Tour,
-// ): (
-//   target: typeof TourService,
-//   propertyKey: undefined,
-//   parameterIndex: 0,
-// ) => void {
-//   throw new Error('Function not implemented.');
-// }

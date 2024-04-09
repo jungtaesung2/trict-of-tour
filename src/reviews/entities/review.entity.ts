@@ -36,4 +36,5 @@ export class Review {
   @ManyToOne(() => Reservation, (reservations) => reservations.reviews)
   @JoinColumn({ name: 'reservationId', referencedColumnName: 'id' })
   reservations: Reservation;
+  tour: any;
 }
