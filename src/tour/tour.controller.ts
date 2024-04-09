@@ -17,10 +17,14 @@ import { UpdateTourDto } from './dto/update-tour.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { S3 } from 'aws-sdk';
 import { FindAllTourDto } from './dto/findAll-tour.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('tour')
 export class TourController {
-  constructor(private readonly tourService: TourService) {}
+  constructor(
+    private readonly tourService: TourService,
+    private readonly configService: ConfigService,
+  ) {}
 
   // configService 써보자...
   @Post()
@@ -32,8 +36,8 @@ export class TourController {
     console.log(file);
     if (file) {
       const s3 = new S3({
-        accessKeyId: process.env.S3_ACCESS_KEY,
-        secretAccessKey: process.env.S3_SECRET_KEY,
+        accessKeyId: this.configService.get<string>('S3_ACCESS_KEY'),
+        secretAccessKey: this.configService.get<string>('S3_SECRET_KEY'),
       });
 
       try {
@@ -42,7 +46,7 @@ export class TourController {
           .putObject({
             Key: key,
             Body: file.buffer,
-            Bucket: process.env.BUCKET_NAME,
+            Bucket: this.configService.get<string>('BUCKET_NAME'),
           })
           .promise();
         console.log(upload);

@@ -118,12 +118,22 @@ export class TourService {
 
   // 투어 조회 >> 메인페이지에 있는 가이드가 등록한 투어가 보여야한다.검색 기능추가
   async findAllTour({ keyword, tourType }: FindAllTourDto) {
-    return await this.tourRepository.find({
-      where: {
-        ...(keyword && { title: Like(`%${keyword}%`) }),
-        ...(tourType && { tourType }),
-      },
-    });
+    const searchTour = this.tourRepository.createQueryBuilder('tour');
+
+    if (keyword) {
+      searchTour.where(
+        '(tour.title LIKE :keyword OR tour.content LIKE :keyword)',
+        { keyword: `%${keyword}%` },
+      );
+    }
+
+    if (tourType) {
+      searchTour.andWhere('tour.tourType = :tourType', { tourType });
+    }
+
+    const tours = await searchTour.getMany();
+
+    return tours;
   }
 
   // 투어 상세 조회
