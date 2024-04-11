@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateReservationDto } from '../reservation/dto/create-reservation.dto';
-import { DataSource, LessThan, Repository } from 'typeorm';
+import { DataSource, LessThan, Not, Repository } from 'typeorm';
 import { Reservation } from '../reservation/entities/reservation.entity';
 import { Tour } from '../tour/entities/tour.entity';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
@@ -258,7 +258,7 @@ export class ReservationService {
       // 현재 시간 이후에 완료된 예약을 조회
       const currentTime = new Date();
       const completedReservations = await this.reservationRepository.find({
-        where: { date: LessThan(currentTime) },
+        where: { date: LessThan(currentTime), status: Not(Status.CANCEL) },
       });
 
       // 조회된 예약들의 상태를 "완료"로 변경하고 저장
