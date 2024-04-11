@@ -15,7 +15,8 @@ import { ReservationSchedulerService } from './scheduler/scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
-
+import { EventsModule } from './events/events.module';
+import { ChatModule } from './chat/chat.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -56,6 +57,8 @@ const typeOrmModuleOptions = {
     ReservationModule,
     UserModule,
     GuideModule,
+    EventsModule,
+    ChatModule,
   ],
 
   controllers: [AppController],
