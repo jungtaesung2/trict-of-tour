@@ -1,34 +1,65 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res, HttpStatus, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PassThrough } from 'stream';
+import { Response } from 'express';
+import { STATUS_CODES, request } from 'http';
+import { JwtAuthGuard } from './guards/jwtguard';
+import { SignInDto } from './dto/signin.dto';
 
-@Controller('user')
+
+
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @Post('signup')
+  async signup(@Body() createUserDto: CreateUserDto, @Res({passthrough:true}) res:Response) {
+    const accessToken = await this.userService.signup(createUserDto);
+    res.cookie('authorization', `Bearer ${accessToken}`);
+    return { statusCode: HttpStatus.CREATED,
+      message: '회원가입에 성공했습니다.' };
+  };
+
+  //singnup에 맞게 signindto를 써서 바꾸기.
+  @Post('signin')
+  async signin(@Body() signinDto: SignInDto, @Res({passthrough:true}) res:Response) {
+    const accessToken = await this.userService.signin(signinDto);
+    res.cookie('authorization', `Bearer ${accessToken}`);
+    return { statusCode : HttpStatus.CREATED ,
+      message : '로그인에 성공하였습니다.'
+    };
+  };
+
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Req()req:Request) {
+    const userId = req.user.id;
+    return this.userService.getUser(userId);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  //위랑 비슷하게
+  @UseGuards(JwtAuthGuard)
+  @Patch('profile')
+  updateProfile(@Req()req:Request) {
+    const userId = req.user.id;
+    return this.userService.getUser(userId);
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  
+  @UseGuards(JwtAuthGuard)
+  //signout은 토큰을 만료시키면 됩니다.
+  @Delete('signout')
+  signout(@Param('userId') userId: number) {
+    const
+    return this.userService.remove(userId);
   }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  
+  @UseGuards(JwtAuthGuard)
+  //delete
+  @Delete('leave')
+  leave(@Param('userId') userId: number) {
+    return this.userService.remove(userId);
   }
 }
