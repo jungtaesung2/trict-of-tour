@@ -20,6 +20,9 @@ async function bootstrap() {
   // NestJS 애플리케이션의 HTTP 서버를 3312 포트로 열기
   await app.listen(3312);
 
+  // 정적 파일을 제공하기 위한 Express 미들웨어 추가
+  expressApp.use(express.static('src'));
+
   // Socket.IO 서버 인스턴스 생성
   const io = new Server(httpServer, {
     cors: {
@@ -29,9 +32,6 @@ async function bootstrap() {
       credentials: true,
     },
   });
-
-  // // 정적 파일을 제공하기 위한 Express 미들웨어 추가
-  // expressApp.use(express.static('src'));
 
   // Socket.IO 서버를 4000 포트로 열기
   httpServer.listen(4000, () => {
