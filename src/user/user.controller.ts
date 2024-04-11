@@ -52,7 +52,6 @@ export class UserController {
   //signout은 토큰을 만료시키면 됩니다.
   @Delete('signout')
   signout(@Param('userId') userId: number) {
-    const
     return this.userService.remove(userId);
   }
   
