@@ -42,6 +42,7 @@ exports.ChatModule = void 0;
 var common_1 = require("@nestjs/common");
 var chat_service_1 = require("./chat.service");
 // import { ChatController } from './chat.controller';
+import { ChatController } from './chat.controller';
 var chat_gateway_1 = require("./chat.gateway");
 var ChatModule = function () {
     var _classDecorators = [(0, common_1.Module)({

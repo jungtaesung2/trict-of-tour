@@ -15,8 +15,9 @@ import { ReservationSchedulerService } from './scheduler/scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
-import { EventsModule } from './events/events.module';
 import { ChatModule } from './chat/chat.module';
+import { Chat } from './chat/entities/chat.entity';
+import { ChatGateway } from './gateway/chat.gateway';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -28,7 +29,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review, Reservation],
+    entities: [Tour, Region, Review, Reservation, Chat],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -57,11 +58,10 @@ const typeOrmModuleOptions = {
     ReservationModule,
     UserModule,
     GuideModule,
-    EventsModule,
     ChatModule,
   ],
 
   controllers: [AppController],
-  providers: [AppService, ReservationSchedulerService],
+  providers: [AppService, ReservationSchedulerService, ChatGateway],
 })
 export class AppModule {}
