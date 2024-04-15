@@ -4,13 +4,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMileageDto } from './dto/create-mileages.dto';
 import { Review } from 'src/reviews/entities/review.entity';
+import { User } from 'src/user/entities/user.entity';
 
 
 @Injectable()
 export class MileagesService {
 constructor(
     @InjectRepository(User)
-    private readonly UserRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Mileage)
     private readonly mileageRepository: Repository<Mileage>,        
 ) {}

@@ -12,9 +12,13 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/entities/review.entity';
 import { Reservation } from './reservation/entities/reservation.entity';
 import { MileagesService } from './mileages/mileages.service';
-import { MileagesController } from './mileages/mileages.controller';
 import { MileagesModule } from './mileages/mileages.module';
 import { Mileage } from './mileages/entities/mileages.entity';
+import { ReservationSchedulerService } from './scheduler/scheduler.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { UserModule } from './user/user.module';
+import { GuideModule } from './guide/guide.module';
+import { User } from './user/entities/user.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -26,7 +30,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review, Reservation, Mileage],
+    entities: [Tour, Region, Review, Reservation, Mileage, User],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -49,13 +53,16 @@ const typeOrmModuleOptions = {
       }),
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
+    ScheduleModule.forRoot(),
     TourModule,
     ReviewsModule,
     ReservationModule,
     MileagesModule,
+    UserModule,
+    GuideModule,
   ],
 
-  controllers: [AppController, MileagesController],
-  providers: [AppService, MileagesService],
+  controllers: [AppController],
+  providers: [AppService, ReservationSchedulerService, MileagesService],
 })
 export class AppModule {}

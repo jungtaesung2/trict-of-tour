@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   Controller,
   Get,
@@ -14,7 +14,7 @@ import { ReservationService } from '../reservation/reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { TourService } from '../tour/tour.service';
 import { validate } from 'class-validator';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
 //   import { BoardGuard } from 'src/board/guards/board.guard';
 //   import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
@@ -27,48 +27,49 @@ export class ReservationController {
     private readonly TourService: TourService,
   ) {}
 
-  @Post()
+  @Post('/:tourId')
   async CreateReservation(
     @Param('tourId') tourId: number,
-    @Body() CreateReservation: CreateReservationDto,
+    @Body() CreateReservationDto: CreateReservationDto,
     @Req() req: any,
   ) {
-    try {
-      // 사용자 ID 가져오기
-      const userId = req.user;
+    // 사용자 ID 가져오기
+    const userId = req.user;
 
-      await validate(CreateReservation);
+    // 주어진 투어 ID에 해당하는 투어가 있는지 확인
 
-      // 예약 생성
-      const { message, reservationDetails } =
-        await this.ReservationService.create(CreateReservation, userId, tourId);
-
-      //   return {
-      //     statusCode: 200,
-      //     message,
-      //     date: reservationDetails.date,
-      //     people: reservationDetails.people,
-      //     firstname: reservationDetails.firstname,
-      //     lastname: reservationDetails.lastname,
-      //     specialRequests: reservationDetails.specialRequests,
-      //   };
-
-      return { statusCode: 200, message, reservationDetails };
-    } catch (error) {
-      throw new Error(`${error}`);
+    const tour = await this.TourService.findOne(+tourId);
+    console.log('투어정보', tour);
+    if (!tour) {
+      throw new NotFoundException('해당하는 투어를 찾지 못하였습니다.');
     }
+
+    const isValidDate = await this.ReservationService.isDateValid(
+      tourId,
+      new Date(CreateReservationDto.date),
+    );
+    if (!isValidDate) {
+      throw new BadRequestException('예약할 수 없는 날짜입니다.');
+    }
+    // 예약 생성
+    const { message, reservation } = await this.ReservationService.create(
+      CreateReservationDto,
+      userId,
+      tourId,
+    );
+
+    return { statusCode: 200, message, reservation };
   }
 
-  @Patch('/:reservationId')
+  @Patch('/:reservationId/cancel')
   async editReservaition(
     @Param('reservationId') reservationId: number,
-    @Body() UpdateReservationDto: UpdateReservationDto,
+    @Body() cancelReservationDto: CancelReservationDto,
     @Req() req: any,
   ) {
     try {
       const userId = req.user;
 
-      // 예약 취소 가능 여부 확인
       const canCancel =
         await this.ReservationService.canCancelReservation(reservationId);
 
@@ -76,14 +77,14 @@ export class ReservationController {
       if (canCancel) {
         const cancellationResult =
           await this.ReservationService.requestCancellation(
-            UpdateReservationDto,
             reservationId,
+            cancelReservationDto,
             userId,
           );
 
         return cancellationResult;
       } else {
-        return { message: '해당 예약은 취소할 수 없습니다.' };
+        return { statusCode: 200, message: '해당 예약은 취소할 수 없습니다.' };
       }
     } catch (error) {
       return { message: `${error}` };
@@ -96,15 +97,15 @@ export class ReservationController {
     return this.ReservationService.findAllmyReservations(userId);
   }
 
+  // 예약 상태에 따라 조회
+  @Get('/status')
+  async getReservationsByStatus(@Query('status') status: Status) {
+    return this.ReservationService.findReservationsByStatus(status);
+  }
+
   // 예약 상세 조회
   @Get('/:reservationId')
   async findOne(@Param('reservationId') reservationId: number) {
-    return this.ReservationService.findOne(reservationId);
-  }
-
-  // 예약 상태에 따라 조회
-  @Get()
-  async getReservationsByStatus(@Query('status') status: Status) {
-    return this.ReservationService.findReservationsByStatus(status);
+    return this.ReservationService.findReservationById(reservationId);
   }
 }

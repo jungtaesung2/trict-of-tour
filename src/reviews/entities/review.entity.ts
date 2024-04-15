@@ -29,9 +29,9 @@ export class Review {
     @UpdateDateColumn()
     updatedAt: Date;
 
-        @ManyToOne(() => Tour, (tour) => tour.reviews)
-        @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
-        tour: Tour;
+    @ManyToOne(() => Tour, (tour) => tour.reviews)
+    @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
+    tour: Tour;
 
     @ManyToOne(() => Reservation, (reservations) => reservations.reviews)
     @JoinColumn({ name: 'reservationId', referencedColumnName: 'id' })

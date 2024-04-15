@@ -49,6 +49,15 @@ export class ReviewsService {
     async findOneByTourId(tourId: number): Promise<Review[]> {
       return await this.reviewRepository.find({ where: { tour: { id: tourId } } });
     }
+    // 별점
+    async Rating(tourId: number): Promise<number> {
+      const review = await this.reviewRepository.find({ where: { tour: { id: tourId } } });
+      
+      const totalStars = review.reduce((acc, review) => acc + review.star, 0); //acc누적값
+      const averageRating = totalStars / review.length;
+      
+      return averageRating;
+  }
     //리뷰 수정
     async update(reviewId: number, updateReviewDto: UpdateReviewDto): Promise<{review: Review}> {
         const review = await this.findOne(reviewId);
@@ -73,6 +82,8 @@ export class ReviewsService {
       }
         await this.reviewRepository.delete(reviewId);
         return {message:"리뷰가 삭제되었습니다"}
+
+    // 
     }
 }
 

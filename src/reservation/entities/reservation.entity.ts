@@ -4,6 +4,7 @@ import {
   IsString,
   IsNumber,
   IsDate,
+  IsBoolean,
 } from 'class-validator';
 import {
   Column,
@@ -11,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   ManyToOne,
   JoinColumn,
   OneToMany,
@@ -28,10 +30,6 @@ export class Reservation {
   @IsNumber()
   @Column({ type: 'int', nullable: false })
   userId: number;
-
-  @IsNumber()
-  @Column({ type: 'int', nullable: false })
-  tourId: number;
 
   @IsString()
   @Column({ type: 'varchar', nullable: false })
@@ -61,7 +59,7 @@ export class Reservation {
   lastname: string;
 
   @IsString() // 취소 이유를 저장할 데이터베이스 필드
-  @Column({ type: 'varchar', nullable: true }) // 취소 이유는 선택적으로 저장될 수 있음
+  @Column({ type: 'varchar', nullable: true })
   cancelReason: string;
 
   @IsEnum(Status)
@@ -74,14 +72,20 @@ export class Reservation {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  // @Column({ type: 'timestamp', nullable: true })
+  // cancelledAt: Date; // 추가된 cancelledAt 속성
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
   // @ManyToOne(() => User, (user) => user.reservations)
   // @JoinColumn({ name: 'userId' })
   // user: User;
 
   @ManyToOne(() => Tour, (tour) => tour.reservations)
-  @JoinColumn({ name: 'tourId' })
+  @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
   tour: Tour;
-  
+
   @OneToMany(() => Review, (reviews) => reviews.reservations)
-  reviews: Review;
+  reviews: Review[];
 }
