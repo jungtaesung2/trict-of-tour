@@ -7,7 +7,7 @@ export class CreateReviewDto extends PickType(Review,
     comment: string;
 
     @IsNotEmpty()
-    star: string;
+    star: number;
 
     @IsNotEmpty()
     image : string

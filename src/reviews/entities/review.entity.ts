@@ -16,9 +16,8 @@ export class Review {
     @Column({ type: 'varchar', length: 255, nullable: false  })
     comment: string;
 
-    @IsString()
-    @Column({ type: 'varchar', length: 255, nullable: false  })
-    star: string;
+    @Column({ type: 'int' })
+    star: number;
 
     @IsString()
     @Column({ type: 'varchar', length: 255, nullable: false  })
@@ -30,9 +29,9 @@ export class Review {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @ManyToOne(() => Tour, (tour) => tour.reviews)
-    @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
-    tour: Tour;
+        @ManyToOne(() => Tour, (tour) => tour.reviews)
+        @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
+        tour: Tour;
 
     @ManyToOne(() => Reservation, (reservations) => reservations.reviews)
     @JoinColumn({ name: 'reservationId', referencedColumnName: 'id' })

@@ -3,6 +3,6 @@ import { CreateReviewDto } from './create-review.dto';
 
 export class UpdateReviewDto extends PartialType(CreateReviewDto) {
     readonly comment?: string;
-    readonly star?: string;
+    readonly star?: number;
     readonly image?: string;
 }
