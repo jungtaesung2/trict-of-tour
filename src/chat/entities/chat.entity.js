@@ -48,26 +48,22 @@ var Chat = function () {
     var _id_decorators;
     var _id_initializers = [];
     var _id_extraInitializers = [];
+    var _content_decorators;
+    var _content_initializers = [];
+    var _content_extraInitializers = [];
     var _senderId_decorators;
     var _senderId_initializers = [];
     var _senderId_extraInitializers = [];
-    var _receiverId_decorators;
-    var _receiverId_initializers = [];
-    var _receiverId_extraInitializers = [];
-    var _message_decorators;
-    var _message_initializers = [];
-    var _message_extraInitializers = [];
-    var _createdAt_decorators;
-    var _createdAt_initializers = [];
-    var _createdAt_extraInitializers = [];
+    var _sentAt_decorators;
+    var _sentAt_initializers = [];
+    var _sentAt_extraInitializers = [];
     var Chat = _classThis = /** @class */ (function () {
         function Chat_1() {
             this.id = __runInitializers(this, _id_initializers, void 0);
-            this.senderId = (__runInitializers(this, _id_extraInitializers), __runInitializers(this, _senderId_initializers, void 0));
-            this.receiverId = (__runInitializers(this, _senderId_extraInitializers), __runInitializers(this, _receiverId_initializers, void 0));
-            this.message = (__runInitializers(this, _receiverId_extraInitializers), __runInitializers(this, _message_initializers, void 0));
-            this.createdAt = (__runInitializers(this, _message_extraInitializers), __runInitializers(this, _createdAt_initializers, void 0));
-            __runInitializers(this, _createdAt_extraInitializers);
+            this.content = (__runInitializers(this, _id_extraInitializers), __runInitializers(this, _content_initializers, void 0));
+            this.senderId = (__runInitializers(this, _content_extraInitializers), __runInitializers(this, _senderId_initializers, void 0));
+            this.sentAt = (__runInitializers(this, _senderId_extraInitializers), __runInitializers(this, _sentAt_initializers, void 0));
+            __runInitializers(this, _sentAt_extraInitializers);
         }
         return Chat_1;
     }());
@@ -75,15 +71,13 @@ var Chat = function () {
     (function () {
         var _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
         _id_decorators = [(0, typeorm_1.PrimaryGeneratedColumn)()];
+        _content_decorators = [(0, typeorm_1.Column)({ length: 255 })];
         _senderId_decorators = [(0, typeorm_1.Column)()];
-        _receiverId_decorators = [(0, typeorm_1.Column)()];
-        _message_decorators = [(0, typeorm_1.Column)()];
-        _createdAt_decorators = [(0, typeorm_1.Column)({ type: 'timestamp', default: function () { return 'CURRENT_TIMESTAMP'; } })];
+        _sentAt_decorators = [(0, typeorm_1.Column)({ type: 'timestamp', default: function () { return 'CURRENT_TIMESTAMP'; } })];
         __esDecorate(null, null, _id_decorators, { kind: "field", name: "id", static: false, private: false, access: { has: function (obj) { return "id" in obj; }, get: function (obj) { return obj.id; }, set: function (obj, value) { obj.id = value; } }, metadata: _metadata }, _id_initializers, _id_extraInitializers);
+        __esDecorate(null, null, _content_decorators, { kind: "field", name: "content", static: false, private: false, access: { has: function (obj) { return "content" in obj; }, get: function (obj) { return obj.content; }, set: function (obj, value) { obj.content = value; } }, metadata: _metadata }, _content_initializers, _content_extraInitializers);
         __esDecorate(null, null, _senderId_decorators, { kind: "field", name: "senderId", static: false, private: false, access: { has: function (obj) { return "senderId" in obj; }, get: function (obj) { return obj.senderId; }, set: function (obj, value) { obj.senderId = value; } }, metadata: _metadata }, _senderId_initializers, _senderId_extraInitializers);
-        __esDecorate(null, null, _receiverId_decorators, { kind: "field", name: "receiverId", static: false, private: false, access: { has: function (obj) { return "receiverId" in obj; }, get: function (obj) { return obj.receiverId; }, set: function (obj, value) { obj.receiverId = value; } }, metadata: _metadata }, _receiverId_initializers, _receiverId_extraInitializers);
-        __esDecorate(null, null, _message_decorators, { kind: "field", name: "message", static: false, private: false, access: { has: function (obj) { return "message" in obj; }, get: function (obj) { return obj.message; }, set: function (obj, value) { obj.message = value; } }, metadata: _metadata }, _message_initializers, _message_extraInitializers);
-        __esDecorate(null, null, _createdAt_decorators, { kind: "field", name: "createdAt", static: false, private: false, access: { has: function (obj) { return "createdAt" in obj; }, get: function (obj) { return obj.createdAt; }, set: function (obj, value) { obj.createdAt = value; } }, metadata: _metadata }, _createdAt_initializers, _createdAt_extraInitializers);
+        __esDecorate(null, null, _sentAt_decorators, { kind: "field", name: "sentAt", static: false, private: false, access: { has: function (obj) { return "sentAt" in obj; }, get: function (obj) { return obj.sentAt; }, set: function (obj, value) { obj.sentAt = value; } }, metadata: _metadata }, _sentAt_initializers, _sentAt_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
         Chat = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });

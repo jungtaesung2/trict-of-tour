@@ -1,4 +1,19 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,42 +51,37 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var core_1 = require("@nestjs/core");
-var app_module_1 = require("./app.module");
-var redis_io_adapter_1 = require("./adapters/redis-io.adapter");
-var express_1 = require("express");
-var path_1 = require("path");
-function bootstrap() {
-    return __awaiter(this, void 0, void 0, function () {
-        var app, redisIoAdapter, expressApp;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, core_1.NestFactory.create(app_module_1.AppModule)];
-                case 1:
-                    app = _a.sent();
-                    redisIoAdapter = new redis_io_adapter_1.RedisIoAdapter(app);
-                    return [4 /*yield*/, redisIoAdapter.connectToRedis()];
-                case 2:
-                    _a.sent();
-                    app.useWebSocketAdapter(redisIoAdapter);
-                    console.log('레디스연결확인', redisIoAdapter);
-                    // CORS 설정
-                    app.enableCors({
-                        origin: ['http://localhost:4200', 'http://localhost:4000'], // 허용할 오리진 설정
-                        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-                        allowedHeaders: ['Content-Type', 'Authorization'],
-                        credentials: true, // 인증 정보를 포함할지 여부
-                    });
-                    expressApp = app.getHttpAdapter().getInstance();
-                    // 정적 파일을 제공하기 위한 Express 미들웨어 추가
-                    expressApp.use(express_1.default.static((0, path_1.join)(__dirname, '..', 'client')));
-                    return [4 /*yield*/, app.listen(3312)];
-                case 3:
-                    _a.sent(); // Main application listens on port 3312
-                    console.log('Main application is running on port 3312');
-                    return [2 /*return*/];
-            }
+exports.RedisIoAdapter = void 0;
+var platform_socket_io_1 = require("@nestjs/platform-socket.io");
+var redis_adapter_1 = require("@socket.io/redis-adapter");
+var redis_1 = require("redis");
+var RedisIoAdapter = /** @class */ (function (_super) {
+    __extends(RedisIoAdapter, _super);
+    function RedisIoAdapter() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    RedisIoAdapter.prototype.connectToRedis = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var pubClient, subClient;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        pubClient = (0, redis_1.createClient)({ url: "redis://localhost:6379" });
+                        subClient = pubClient.duplicate();
+                        return [4 /*yield*/, Promise.all([pubClient.connect(), subClient.connect()])];
+                    case 1:
+                        _a.sent();
+                        this.adapterConstructor = (0, redis_adapter_1.createAdapter)(pubClient, subClient);
+                        return [2 /*return*/];
+                }
+            });
         });
-    });
-}
-bootstrap();
+    };
+    RedisIoAdapter.prototype.createIOServer = function (port, options) {
+        var server = _super.prototype.createIOServer.call(this, port, options);
+        server.adapter(this.adapterConstructor);
+        return server;
+    };
+    return RedisIoAdapter;
+}(platform_socket_io_1.IoAdapter));
+exports.RedisIoAdapter = RedisIoAdapter;

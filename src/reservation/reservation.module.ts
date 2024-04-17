@@ -7,7 +7,7 @@ import { TourService } from 'src/tour/tour.service';
 import { Tour } from '../tour/entities/tour.entity';
 import { Region } from 'src/tour/entities/region.entity';
 import { ReservationSchedulerService } from 'src/scheduler/scheduler.service';
-import { ReservationGateWay } from '../gateway/reservation.gateway';
+import { ReservationGateWay } from '../public/gateway/reservation.gateway';
 
 @Module({
   imports: [
@@ -20,6 +20,6 @@ import { ReservationGateWay } from '../gateway/reservation.gateway';
     ReservationSchedulerService,
     ReservationGateWay,
   ],
-  exports: [TypeOrmModule, ReservationService],
+  exports: [TypeOrmModule, ReservationService, ReservationGateWay],
 })
 export class ReservationModule {}

@@ -17,8 +17,9 @@ import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
 import { ChatModule } from './chat/chat.module';
 import { Chat } from './chat/entities/chat.entity';
-import { ChatGateway } from './gateway/chat.gateway';
-import { ReservationGateWay } from './gateway/reservation.gateway';
+import { ChatGateway } from '../src/public/gateway/chat.gateway';
+import { ReservationGateWay } from '../src/public/gateway/reservation.gateway';
+import { RedisIoAdapter } from './adapters/redis-io.adapter';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -68,6 +69,7 @@ const typeOrmModuleOptions = {
     ReservationSchedulerService,
     ChatGateway,
     ReservationGateWay,
+    RedisIoAdapter,
   ],
 })
 export class AppModule {}

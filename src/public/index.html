@@ -12,17 +12,29 @@
       <h1>Chat Together!</h1>
     </header>
     <main>
-      <form id="nickname">
-        <input type="text" placeholder="Choose your nickname" required />
+      <form id="nicknameForm">
+        <input
+          type="text"
+          id="nicknameInput"
+          placeholder="Choose your nickname"
+          required
+        />
         <button>Save</button>
       </form>
       <ul></ul>
       <form id="message">
-        <input type="text" placeholder="Please write a message" required />
+        <input
+          type="text"
+          id="message"
+          placeholder="Please write a message"
+          required
+        />
         <button>Send</button>
       </form>
     </main>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/public/js/app.js"></script>
+    <script src="public/chat-socket.js"></script>
+    <script src="public/reservation-socket.js"></script>
+    <script src="public/gateway/chat.gateway.js"></script>
+    <script src="public/gateway/reservation.gateway.js"></script>
   </body>
 </html>

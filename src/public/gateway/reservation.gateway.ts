@@ -10,7 +10,7 @@ import { CreateReservationDto } from 'src/reservation/dto/create-reservation.dto
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { ReservationService } from 'src/reservation/reservation.service';
 
-@WebSocketGateway(3318, { namespace: 'notification' }) // 안에 port와 namespace를 속성으로 넣어줄 수 있다.
+@WebSocketGateway(4200, { namespace: 'notification' }) // 안에 port와 namespace를 속성으로 넣어줄 수 있다.
 export class ReservationGateWay {
   @WebSocketServer()
   server: Server;

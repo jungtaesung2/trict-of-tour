@@ -83,9 +83,9 @@ var Reservation = function () {
     var _createdAt_decorators;
     var _createdAt_initializers = [];
     var _createdAt_extraInitializers = [];
-    var _updatedAt_decorators;
-    var _updatedAt_initializers = [];
-    var _updatedAt_extraInitializers = [];
+    var _cancelledAt_decorators;
+    var _cancelledAt_initializers = [];
+    var _cancelledAt_extraInitializers = [];
     var _deletedAt_decorators;
     var _deletedAt_initializers = [];
     var _deletedAt_extraInitializers = [];
@@ -108,10 +108,10 @@ var Reservation = function () {
             this.cancelReason = (__runInitializers(this, _lastname_extraInitializers), __runInitializers(this, _cancelReason_initializers, void 0));
             this.status = (__runInitializers(this, _cancelReason_extraInitializers), __runInitializers(this, _status_initializers, void 0));
             this.createdAt = (__runInitializers(this, _status_extraInitializers), __runInitializers(this, _createdAt_initializers, void 0));
-            this.updatedAt = (__runInitializers(this, _createdAt_extraInitializers), __runInitializers(this, _updatedAt_initializers, void 0));
-            // @Column({ type: 'timestamp', nullable: true })
-            // cancelledAt: Date; // 추가된 cancelledAt 속성
-            this.deletedAt = (__runInitializers(this, _updatedAt_extraInitializers), __runInitializers(this, _deletedAt_initializers, void 0));
+            // @UpdateDateColumn()
+            // updatedAt: Date;
+            this.cancelledAt = (__runInitializers(this, _createdAt_extraInitializers), __runInitializers(this, _cancelledAt_initializers, void 0)); // 추가된 cancelledAt 속성
+            this.deletedAt = (__runInitializers(this, _cancelledAt_extraInitializers), __runInitializers(this, _deletedAt_initializers, void 0));
             // @ManyToOne(() => User, (user) => user.reservations)
             // @JoinColumn({ name: 'userId' })
             // user: User;
@@ -135,7 +135,7 @@ var Reservation = function () {
         _cancelReason_decorators = [(0, class_validator_1.IsString)(), (0, typeorm_1.Column)({ type: 'varchar', nullable: true })];
         _status_decorators = [(0, class_validator_1.IsEnum)(status_type_1.Status), (0, typeorm_1.Column)({ type: 'enum', enum: status_type_1.Status, default: status_type_1.Status.ONGOING })];
         _createdAt_decorators = [(0, typeorm_1.CreateDateColumn)()];
-        _updatedAt_decorators = [(0, typeorm_1.UpdateDateColumn)()];
+        _cancelledAt_decorators = [(0, typeorm_1.Column)({ type: 'timestamp', nullable: true })];
         _deletedAt_decorators = [(0, typeorm_1.DeleteDateColumn)()];
         _tour_decorators = [(0, typeorm_1.ManyToOne)(function () { return tour_entity_1.Tour; }, function (tour) { return tour.reservations; }), (0, typeorm_1.JoinColumn)({ name: 'tourId', referencedColumnName: 'id' })];
         _reviews_decorators = [(0, typeorm_1.OneToMany)(function () { return review_entity_1.Review; }, function (reviews) { return reviews.reservations; })];
@@ -150,7 +150,7 @@ var Reservation = function () {
         __esDecorate(null, null, _cancelReason_decorators, { kind: "field", name: "cancelReason", static: false, private: false, access: { has: function (obj) { return "cancelReason" in obj; }, get: function (obj) { return obj.cancelReason; }, set: function (obj, value) { obj.cancelReason = value; } }, metadata: _metadata }, _cancelReason_initializers, _cancelReason_extraInitializers);
         __esDecorate(null, null, _status_decorators, { kind: "field", name: "status", static: false, private: false, access: { has: function (obj) { return "status" in obj; }, get: function (obj) { return obj.status; }, set: function (obj, value) { obj.status = value; } }, metadata: _metadata }, _status_initializers, _status_extraInitializers);
         __esDecorate(null, null, _createdAt_decorators, { kind: "field", name: "createdAt", static: false, private: false, access: { has: function (obj) { return "createdAt" in obj; }, get: function (obj) { return obj.createdAt; }, set: function (obj, value) { obj.createdAt = value; } }, metadata: _metadata }, _createdAt_initializers, _createdAt_extraInitializers);
-        __esDecorate(null, null, _updatedAt_decorators, { kind: "field", name: "updatedAt", static: false, private: false, access: { has: function (obj) { return "updatedAt" in obj; }, get: function (obj) { return obj.updatedAt; }, set: function (obj, value) { obj.updatedAt = value; } }, metadata: _metadata }, _updatedAt_initializers, _updatedAt_extraInitializers);
+        __esDecorate(null, null, _cancelledAt_decorators, { kind: "field", name: "cancelledAt", static: false, private: false, access: { has: function (obj) { return "cancelledAt" in obj; }, get: function (obj) { return obj.cancelledAt; }, set: function (obj, value) { obj.cancelledAt = value; } }, metadata: _metadata }, _cancelledAt_initializers, _cancelledAt_extraInitializers);
         __esDecorate(null, null, _deletedAt_decorators, { kind: "field", name: "deletedAt", static: false, private: false, access: { has: function (obj) { return "deletedAt" in obj; }, get: function (obj) { return obj.deletedAt; }, set: function (obj, value) { obj.deletedAt = value; } }, metadata: _metadata }, _deletedAt_initializers, _deletedAt_extraInitializers);
         __esDecorate(null, null, _tour_decorators, { kind: "field", name: "tour", static: false, private: false, access: { has: function (obj) { return "tour" in obj; }, get: function (obj) { return obj.tour; }, set: function (obj, value) { obj.tour = value; } }, metadata: _metadata }, _tour_initializers, _tour_extraInitializers);
         __esDecorate(null, null, _reviews_decorators, { kind: "field", name: "reviews", static: false, private: false, access: { has: function (obj) { return "reviews" in obj; }, get: function (obj) { return obj.reviews; }, set: function (obj, value) { obj.reviews = value; } }, metadata: _metadata }, _reviews_initializers, _reviews_extraInitializers);

@@ -1,4 +1,7 @@
-const socket = io('http://localhost:3318', { transports: ['websocket'] });
+const socket = io(`${process.env.REACT_APP_SOCKET_ENDPOINT}`, {
+  path: '/socket.io/', // socket.io 경로 설정, Socket.IO는 기본적으로 "/socket.io/" 경로를 사용하여 서버와 클라이언트 간의 통신을 처리한다.
+  transports: ['websocket'], // websocket을 사용하여 통신하겠다고 지정
+});
 
 const messageInput = document.getElementById('message');
 const messages = document.getElementById('messages');

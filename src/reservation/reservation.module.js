@@ -48,14 +48,20 @@ var tour_service_1 = require("src/tour/tour.service");
 var tour_entity_1 = require("../tour/entities/tour.entity");
 var region_entity_1 = require("src/tour/entities/region.entity");
 var scheduler_service_1 = require("src/scheduler/scheduler.service");
+var reservation_gateway_1 = require("../public/gateway/reservation.gateway");
 var ReservationModule = function () {
     var _classDecorators = [(0, common_1.Module)({
             imports: [
                 typeorm_1.TypeOrmModule.forFeature([reservation_entity_1.Reservation, tour_entity_1.Tour, region_entity_1.Region]) /*UserModule*/,
             ],
             controllers: [reservation_controller_1.ReservationController],
-            providers: [reservation_service_1.ReservationService, tour_service_1.TourService, scheduler_service_1.ReservationSchedulerService],
-            exports: [typeorm_1.TypeOrmModule, reservation_service_1.ReservationService],
+            providers: [
+                reservation_service_1.ReservationService,
+                tour_service_1.TourService,
+                scheduler_service_1.ReservationSchedulerService,
+                reservation_gateway_1.ReservationGateWay,
+            ],
+            exports: [typeorm_1.TypeOrmModule, reservation_service_1.ReservationService, reservation_gateway_1.ReservationGateWay],
         })];
     var _classDescriptor;
     var _classExtraInitializers = [];

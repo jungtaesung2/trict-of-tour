@@ -6,19 +6,17 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway(4000, { namespace: 'chat' }) // 안에 port와 namespace를 속성으로 넣어줄 수 있다.
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
-  userService: UserService;
 
   connectedClients: { [socketId: string]: boolean } = {};
   clientNickName: { [socketId: string]: string } = {};
   roomUsers: { [key: string]: string[] } = {};
 
-  handleConnection(@ConnectedSocket() client: Socket): void {
+  handleConnection(@ConnectedSocket() client: Socket) {
     // 이미 연결된 클라이언트인지 확인
     if (this.connectedClients[client.id]) {
       client.disconnect(true);
@@ -63,10 +61,7 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('exit')
-  handleExist(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() room: string,
-  ): void {
+  handleExist(@ConnectedSocket() client: Socket, @MessageBody() room: string) {
     // 방에 접속되어 있지 않은 경우 무시!!!
     if (!client.rooms.has(room)) {
       return;
@@ -95,7 +90,7 @@ export class ChatGateway {
   handleGetUserList(
     @ConnectedSocket() client: Socket,
     @MessageBody() room: string,
-  ): void {
+  ) {
     this.server
       .to(room)
       .emit('userList', { room, userList: this.roomUsers[room] });
@@ -105,7 +100,7 @@ export class ChatGateway {
   handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { message: string; room: string },
-  ): void {
+  ) {
     // 클라이언트가 보낸 채팅 메시지를 해당 방으로 전달하기!
     this.server.to(data.room).emit('chatMessage', {
       userId: this.clientNickName[client.id],

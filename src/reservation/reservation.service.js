@@ -281,7 +281,7 @@ var ReservationService = function () {
                             // reservation.active = false;
                             reservation.status = status_type_1.Status.CANCEL;
                             reservation.cancelReason = cancelReservationDto.cancelReason;
-                            reservation.updatedAt = new Date();
+                            reservation.cancelledAt = new Date();
                             return [4 /*yield*/, queryRunner.manager.save(reservation)];
                         case 6:
                             _a.sent();
@@ -365,7 +365,7 @@ var ReservationService = function () {
                             _a.trys.push([0, 3, , 4]);
                             currentTime = new Date();
                             return [4 /*yield*/, this.reservationRepository.find({
-                                    where: { date: (0, typeorm_1.LessThan)(currentTime) },
+                                    where: { date: (0, typeorm_1.LessThan)(currentTime), status: (0, typeorm_1.Not)(status_type_1.Status.CANCEL) },
                                 })];
                         case 1:
                             completedReservations = _a.sent();

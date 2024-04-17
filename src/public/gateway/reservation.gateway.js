@@ -74,52 +74,103 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReservationSchedulerService = void 0;
-var common_1 = require("@nestjs/common");
-var schedule_1 = require("@nestjs/schedule");
-var ReservationSchedulerService = function () {
-    var _classDecorators = [(0, common_1.Injectable)()];
+exports.ReservationGateWay = void 0;
+var websockets_1 = require("@nestjs/websockets");
+var ReservationGateWay = function () {
+    var _classDecorators = [(0, websockets_1.WebSocketGateway)(4200, { namespace: 'notification' })];
     var _classDescriptor;
     var _classExtraInitializers = [];
     var _classThis;
     var _instanceExtraInitializers = [];
-    var _handleInterval_decorators;
-    var ReservationSchedulerService = _classThis = /** @class */ (function () {
-        //   private readonly logger = new Logger(ReservationSchedulerService.name);
-        function ReservationSchedulerService_1(reservationService) {
+    var _server_decorators;
+    var _server_initializers = [];
+    var _server_extraInitializers = [];
+    var _handleCreateReservation_decorators;
+    var _handleCancelReservation_decorators;
+    var ReservationGateWay = _classThis = /** @class */ (function () {
+        function ReservationGateWay_1(reservationService) {
             this.reservationService = (__runInitializers(this, _instanceExtraInitializers), reservationService);
+            this.server = __runInitializers(this, _server_initializers, void 0);
+            __runInitializers(this, _server_extraInitializers);
+            this.reservationService = reservationService;
         }
-        // @Cron('0 0 * * *')
-        // async handleCron() {
-        //   console.log('Running scheduled task at midnight');
-        ReservationSchedulerService_1.prototype.handleInterval = function () {
+        ReservationGateWay_1.prototype.handleCreateReservation = function (client, data) {
             return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
+                var userId, tourId, _a, message, reservation, reservationId, reservationUrl, error_1;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
                         case 0:
-                            console.log('Running scheduled task every 10 seconds');
-                            // 현재 시간 이후에 완료된 예약을 처리하는 메서드 호출
-                            return [4 /*yield*/, this.reservationService.processCompletedReservations()];
+                            userId = 1;
+                            tourId = 1;
+                            _b.label = 1;
                         case 1:
-                            // 현재 시간 이후에 완료된 예약을 처리하는 메서드 호출
-                            _a.sent();
-                            return [2 /*return*/];
+                            _b.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, this.reservationService.create(data, userId, tourId)];
+                        case 2:
+                            _a = _b.sent(), message = _a.message, reservation = _a.reservation;
+                            reservationId = reservation.id;
+                            reservationUrl = "localhost:3312/reservations/".concat(reservationId);
+                            this.server.to(client.id).emit('reservationCreated', {
+                                message: message,
+                                reservation: reservation,
+                                reservationUrl: reservationUrl,
+                            });
+                            this.server
+                                .to(client.id)
+                                .emit('notification', "\uC608\uC57D\uC774 \uC644\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC608\uC57D \uB0B4\uC5ED\uC744 \uD655\uC778\uD558\uB824\uBA74 ".concat(reservationUrl, "\uC744(\uB97C) \uBC29\uBB38\uD558\uC138\uC694."));
+                            return [3 /*break*/, 4];
+                        case 3:
+                            error_1 = _b.sent();
+                            this.server.to(client.id).emit('reservationFailed');
+                            return [3 /*break*/, 4];
+                        case 4: return [2 /*return*/];
                     }
                 });
             });
         };
-        return ReservationSchedulerService_1;
+        ReservationGateWay_1.prototype.handleCancelReservation = function (client, reservationId) {
+            return __awaiter(this, void 0, void 0, function () {
+                var cancelledReservation, cancellationDate, error_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 2, , 3]);
+                            return [4 /*yield*/, this.reservationService.findReservationById(reservationId)];
+                        case 1:
+                            cancelledReservation = _a.sent();
+                            cancellationDate = cancelledReservation.cancelledAt
+                                .toISOString()
+                                .split('T')[0];
+                            this.server.to(client.id).emit('reservationCancelled', {
+                                id: reservationId,
+                                cancellationDate: cancellationDate,
+                            });
+                            return [3 /*break*/, 3];
+                        case 2:
+                            error_2 = _a.sent();
+                            console.error('Error occurred during reservation cancellation:', error_2);
+                            return [3 /*break*/, 3];
+                        case 3: return [2 /*return*/];
+                    }
+                });
+            });
+        };
+        return ReservationGateWay_1;
     }());
-    __setFunctionName(_classThis, "ReservationSchedulerService");
+    __setFunctionName(_classThis, "ReservationGateWay");
     (function () {
         var _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _handleInterval_decorators = [(0, schedule_1.Interval)(10000)];
-        __esDecorate(_classThis, null, _handleInterval_decorators, { kind: "method", name: "handleInterval", static: false, private: false, access: { has: function (obj) { return "handleInterval" in obj; }, get: function (obj) { return obj.handleInterval; } }, metadata: _metadata }, null, _instanceExtraInitializers);
+        _server_decorators = [(0, websockets_1.WebSocketServer)()];
+        _handleCreateReservation_decorators = [(0, websockets_1.SubscribeMessage)('reservationCreated')];
+        _handleCancelReservation_decorators = [(0, websockets_1.SubscribeMessage)('cancelReservation')];
+        __esDecorate(_classThis, null, _handleCreateReservation_decorators, { kind: "method", name: "handleCreateReservation", static: false, private: false, access: { has: function (obj) { return "handleCreateReservation" in obj; }, get: function (obj) { return obj.handleCreateReservation; } }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(_classThis, null, _handleCancelReservation_decorators, { kind: "method", name: "handleCancelReservation", static: false, private: false, access: { has: function (obj) { return "handleCancelReservation" in obj; }, get: function (obj) { return obj.handleCancelReservation; } }, metadata: _metadata }, null, _instanceExtraInitializers);
+        __esDecorate(null, null, _server_decorators, { kind: "field", name: "server", static: false, private: false, access: { has: function (obj) { return "server" in obj; }, get: function (obj) { return obj.server; }, set: function (obj, value) { obj.server = value; } }, metadata: _metadata }, _server_initializers, _server_extraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        ReservationSchedulerService = _classThis = _classDescriptor.value;
+        ReservationGateWay = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return ReservationSchedulerService = _classThis;
+    return ReservationGateWay = _classThis;
 }();
-exports.ReservationSchedulerService = ReservationSchedulerService;
+exports.ReservationGateWay = ReservationGateWay;

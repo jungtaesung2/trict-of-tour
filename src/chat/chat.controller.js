@@ -1,4 +1,11 @@
 "use strict";
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -25,13 +32,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -74,96 +74,41 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppModule = void 0;
+exports.ChatController = void 0;
 var common_1 = require("@nestjs/common");
-var joi_1 = require("joi");
-var app_controller_1 = require("./app.controller");
-var app_service_1 = require("./app.service");
-var config_1 = require("@nestjs/config");
-var typeorm_1 = require("@nestjs/typeorm");
-var tour_entity_1 = require("./tour/entities/tour.entity");
-var region_entity_1 = require("./tour/entities/region.entity");
-var tour_module_1 = require("./tour/tour.module");
-var reservation_module_1 = require("./reservation/reservation.module");
-var reviews_module_1 = require("./reviews/reviews.module");
-var review_entity_1 = require("./reviews/entities/review.entity");
-var reservation_entity_1 = require("./reservation/entities/reservation.entity");
-var scheduler_service_1 = require("./scheduler/scheduler.service");
-var schedule_1 = require("@nestjs/schedule");
-var user_module_1 = require("./user/user.module");
-var guide_module_1 = require("./guide/guide.module");
-var chat_module_1 = require("./chat/chat.module");
-var chat_entity_1 = require("./chat/entities/chat.entity");
-var chat_gateway_1 = require("../src/public/gateway/chat.gateway");
-var reservation_gateway_1 = require("../src/public/gateway/reservation.gateway");
-var redis_io_adapter_1 = require("./adapters/redis-io.adapter");
-var typeOrmModuleOptions = {
-    useFactory: function (configService) { return __awaiter(void 0, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, ({
-                    type: 'mysql',
-                    username: configService.get('DB_USERNAME'),
-                    password: configService.get('DB_PASSWORD'),
-                    host: configService.get('DB_HOST'),
-                    port: configService.get('DB_PORT'),
-                    database: configService.get('DB_NAME'),
-                    entities: [tour_entity_1.Tour, region_entity_1.Region, review_entity_1.Review, reservation_entity_1.Reservation, chat_entity_1.Chat],
-                    synchronize: configService.get('DB_SYNC'),
-                    logging: true,
-                })];
-        });
-    }); },
-    inject: [config_1.ConfigService],
-};
-var AppModule = function () {
-    var _classDecorators = [(0, common_1.Module)({
-            imports: [
-                config_1.ConfigModule.forRoot({
-                    isGlobal: true,
-                    validationSchema: joi_1.default.object({
-                        JWT_SECRET_KEY: joi_1.default.string().required(),
-                        DB_USERNAME: joi_1.default.string().required(),
-                        DB_PASSWORD: joi_1.default.string().required(),
-                        DB_HOST: joi_1.default.string().required(),
-                        DB_PORT: joi_1.default.number().required(),
-                        DB_NAME: joi_1.default.string().required(),
-                        DB_SYNC: joi_1.default.boolean().required(),
-                    }),
-                }),
-                typeorm_1.TypeOrmModule.forRootAsync(typeOrmModuleOptions),
-                schedule_1.ScheduleModule.forRoot(),
-                tour_module_1.TourModule,
-                reviews_module_1.ReviewsModule,
-                reservation_module_1.ReservationModule,
-                user_module_1.UserModule,
-                guide_module_1.GuideModule,
-                chat_module_1.ChatModule,
-            ],
-            controllers: [app_controller_1.AppController],
-            providers: [
-                app_service_1.AppService,
-                scheduler_service_1.ReservationSchedulerService,
-                chat_gateway_1.ChatGateway,
-                reservation_gateway_1.ReservationGateWay,
-                redis_io_adapter_1.RedisIoAdapter,
-            ],
-        })];
+var ChatController = function () {
+    var _classDecorators = [(0, common_1.Controller)('/chat-history')];
     var _classDescriptor;
     var _classExtraInitializers = [];
     var _classThis;
-    var AppModule = _classThis = /** @class */ (function () {
-        function AppModule_1() {
+    var _instanceExtraInitializers = [];
+    var _getChatHistory_decorators;
+    var ChatController = _classThis = /** @class */ (function () {
+        function ChatController_1(chatService) {
+            this.chatService = (__runInitializers(this, _instanceExtraInitializers), chatService);
         }
-        return AppModule_1;
+        ChatController_1.prototype.getChatHistory = function (userId) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.chatService.getChatHistory(userId)];
+                        case 1: return [2 /*return*/, _a.sent()];
+                    }
+                });
+            });
+        };
+        return ChatController_1;
     }());
-    __setFunctionName(_classThis, "AppModule");
+    __setFunctionName(_classThis, "ChatController");
     (function () {
         var _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+        _getChatHistory_decorators = [(0, common_1.Get)(':userId')];
+        __esDecorate(_classThis, null, _getChatHistory_decorators, { kind: "method", name: "getChatHistory", static: false, private: false, access: { has: function (obj) { return "getChatHistory" in obj; }, get: function (obj) { return obj.getChatHistory; } }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        AppModule = _classThis = _classDescriptor.value;
+        ChatController = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return AppModule = _classThis;
+    return ChatController = _classThis;
 }();
-exports.AppModule = AppModule;
+exports.ChatController = ChatController;

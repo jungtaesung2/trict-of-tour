@@ -41,13 +41,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatModule = void 0;
 var common_1 = require("@nestjs/common");
 var chat_service_1 = require("./chat.service");
-// import { ChatController } from './chat.controller';
-import { ChatController } from './chat.controller';
-var chat_gateway_1 = require("./chat.gateway");
+var chat_controller_1 = require("./chat.controller");
+var chat_gateway_1 = require("../public/gateway/chat.gateway");
+var typeorm_1 = require("@nestjs/typeorm");
+var chat_entity_1 = require("./entities/chat.entity");
 var ChatModule = function () {
     var _classDecorators = [(0, common_1.Module)({
+            imports: [typeorm_1.TypeOrmModule.forFeature([chat_entity_1.Chat])],
             providers: [chat_service_1.ChatService, chat_gateway_1.ChatGateway],
-            // controllers: [ChatController]
+            exports: [typeorm_1.TypeOrmModule],
+            controllers: [chat_controller_1.ChatController],
         })];
     var _classDescriptor;
     var _classExtraInitializers = [];
