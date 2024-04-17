@@ -53,7 +53,7 @@ export class ReservationService {
     }
   }
 
-  private async createReservation(
+  async createReservation(
     queryRunner: any, // QueryRunner 대신 any 타입으로 지정
     CreateReservationDto: CreateReservationDto,
     userId: number,
@@ -206,7 +206,7 @@ export class ReservationService {
       reservation.status = Status.CANCEL;
       reservation.cancelReason = cancelReservationDto.cancelReason;
 
-      reservation.updatedAt = new Date();
+      reservation.cancelledAt = new Date();
 
       await queryRunner.manager.save(reservation);
 

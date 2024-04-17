@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css" />
+    <title>Zoom</title>
+  </head>
+  <body>
+    <header>
+      <h1>Chat Together!</h1>
+    </header>
+    <main>
+      <form id="nickname">
+        <input type="text" placeholder="Choose your nickname" required />
+        <button>Save</button>
+      </form>
+      <ul></ul>
+      <form id="message">
+        <input type="text" placeholder="Please write a message" required />
+        <button>Send</button>
+      </form>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/public/js/app.js"></script>
+  </body>
+</html>

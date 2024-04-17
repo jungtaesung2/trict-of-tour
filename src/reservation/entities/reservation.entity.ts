@@ -69,11 +69,11 @@ export class Reservation {
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
-  // @Column({ type: 'timestamp', nullable: true })
-  // cancelledAt: Date; // 추가된 cancelledAt 속성
+  @Column({ type: 'timestamp', nullable: true })
+  cancelledAt: Date; // 추가된 cancelledAt 속성
 
   @DeleteDateColumn()
   deletedAt: Date;

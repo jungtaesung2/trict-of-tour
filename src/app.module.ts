@@ -18,6 +18,7 @@ import { GuideModule } from './guide/guide.module';
 import { ChatModule } from './chat/chat.module';
 import { Chat } from './chat/entities/chat.entity';
 import { ChatGateway } from './gateway/chat.gateway';
+import { ReservationGateWay } from './gateway/reservation.gateway';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -62,6 +63,11 @@ const typeOrmModuleOptions = {
   ],
 
   controllers: [AppController],
-  providers: [AppService, ReservationSchedulerService, ChatGateway],
+  providers: [
+    AppService,
+    ReservationSchedulerService,
+    ChatGateway,
+    ReservationGateWay,
+  ],
 })
 export class AppModule {}

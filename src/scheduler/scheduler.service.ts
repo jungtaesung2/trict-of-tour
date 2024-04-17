@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, Interval } from '@nestjs/schedule';
+import { Injectable } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { ReservationService } from 'src/reservation/reservation.service';
 
 @Injectable()
