@@ -29,8 +29,6 @@ export class ReviewsService {
             throw new NotFoundException(`해당하는 예약이 없습니다.`);
         }
 
-        //reservation의 userid랑 로그인한 userid랑 일치하는지!
-      
       const newReview = this.reviewRepository.create({
         comment : createReviewDto.comment,
         star: createReviewDto.star,

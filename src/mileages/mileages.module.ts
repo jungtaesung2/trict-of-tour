@@ -4,10 +4,17 @@ import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MileagesController } from './mileages.controller';
 import { MileagesService } from './mileages.service';
+import { ReservationService } from 'src/reservation/reservation.service';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/entities/user.entity';
+import { Tour } from 'src/tour/entities/tour.entity';
+import { TourService } from 'src/tour/tour.service';
+import { Region } from 'src/tour/entities/region.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Mileage, Reservation])], //user
+    imports: [TypeOrmModule.forFeature([Mileage, Reservation, User, Tour, Region])],
     controllers: [MileagesController],
-    providers: [MileagesService],
+    providers: [MileagesService, ReservationService, UserService, TourService],
+    exports : [TypeOrmModule, MileagesService]
 })
 export class MileagesModule {}
