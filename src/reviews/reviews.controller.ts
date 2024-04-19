@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, UseGuards } from '@nestjs/common';
 import { ReviewsService } from '../reviews/reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { UserInfo } from 'src/utils/userinfo.decorator';
 
 
 
@@ -10,9 +12,10 @@ export class ReviewsController {
     constructor(private readonly ReviewsService: ReviewsService) {}
 
     //리뷰 작성
-
+    
+    @UseGuards(AuthGuard('jwt'))
     @Post('/:tourId')
-    create(@Param() params: { tourId: number, reservationId: number }, @Body() createReviewDto : CreateReviewDto) {
+    create(@UserInfo() user, @Param() params: { tourId: number, reservationId: number }, @Body() createReviewDto : CreateReviewDto) {
         return this.ReviewsService.create(params.tourId, params.reservationId, createReviewDto);
     }
 
