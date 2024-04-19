@@ -1,3 +1,4 @@
+import { User } from 'src/user/entities/user.entity';
 import { Chat } from './chat.entity';
 import {
   Column,
@@ -24,4 +25,7 @@ export class ChatTalk {
   @ManyToOne(() => Chat, (chat) => chat.chattalk)
   @JoinColumn({ name: 'chatId', referencedColumnName: 'id' })
   chat: Chat;
+
+  @ManyToOne(() => User, (user) => user.chatTalks)
+  user: User;
 }

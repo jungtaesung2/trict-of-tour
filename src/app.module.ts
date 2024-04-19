@@ -21,7 +21,6 @@ import { ChatTalk } from './chat/entities/chattalk.entity';
 import { ChatGateway } from './gateway/chat.gateway';
 import { ReservationGateWay } from './gateway/reservation.gateway';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
-import { ChatTalkModule } from './chattalk/chattalk.module';
 import { User } from './user/entities/user.entity';
 
 const typeOrmModuleOptions = {
@@ -64,7 +63,6 @@ const typeOrmModuleOptions = {
     UserModule,
     GuideModule,
     ChatModule,
-    ChatTalkModule,
     UserModule,
   ],
 

@@ -1,5 +1,12 @@
+import { User } from 'src/user/entities/user.entity';
 import { ChatTalk } from './chattalk.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 
 @Entity({ name: 'chat' })
 export class Chat {
@@ -14,4 +21,7 @@ export class Chat {
 
   @OneToMany(() => ChatTalk, (chattalk) => chattalk.chat)
   chattalk: ChatTalk[];
+
+  @ManyToOne(() => User, (user) => user.chats)
+  user: User;
 }

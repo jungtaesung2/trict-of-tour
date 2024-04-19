@@ -48,18 +48,18 @@ export class ChatService {
 
   async saveChatMessage(data: { message: string; room: string }) {
     try {
+      // 입장한 소켓 룸이 일치하는지
+      const chatting = await this.chatRepository.findOne({
+        where: { room: data.room },
+      });
+      if (!chatting) {
+        throw new NotFoundException('해당 ID의 채팅방을 찾을 수 없습니다.');
+      }
+
       const chatMessage = new ChatTalk();
 
       chatMessage.content = data.message;
       chatMessage.room = data.room;
-
-      // // 채팅방 ID를 설정하는 부분
-      // const chatting = await this.chatRepository.findOne({
-      //   where: { roomId: data.room },
-      // });
-      // if (!chatting) {
-      //   throw new NotFoundException('해당 ID의 채팅방을 찾을 수 없습니다.');
-      // }
 
       await this.chatRepository.save(chatMessage);
     } catch (error) {
