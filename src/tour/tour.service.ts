@@ -6,20 +6,28 @@ import {
 import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
 import { Tour } from './entities/tour.entity';
-import { Like, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Region } from './entities/region.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindAllTourDto } from './dto/findAll-tour.dto';
+import { User } from 'src/user/entities/user.entity';
+import { TourLike } from './entities/like.entity';
+import { CreateLikeDto } from './dto/create-like.dto';
 
 @Injectable()
 export class TourService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
     // @InjectRepository(Guide)
     // private readonly guideRepository: Repository<Guide>,
     @InjectRepository(Region)
     private readonly regionRepository: Repository<Region>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    // @InjectRepository(TourLike)
+    // private readonly tourLikeRepository: Repository<TourLike>,
   ) {}
   async createTour(createTourDto: CreateTourDto, url: string) {
     const {
@@ -74,7 +82,7 @@ export class TourService {
       throw new BadRequestException('유효한 만기일 날짜 형식이 아닙니다.');
     }
 
-    if (newStartDate.getTime() <= today.getTime()) {
+    if (newStartDate.getTime() < today.getTime()) {
       throw new BadRequestException('시작일은 오늘 이후여야 합니다.');
     }
 
@@ -134,6 +142,32 @@ export class TourService {
     const tours = await searchTour.getMany();
 
     return tours;
+  }
+
+  // 투어 추천 조회
+  async findOneUserRegion(userId: number) {
+    //  유저 존재 여부
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // 유저 투어타입 찾기 , 투어타입(투어전체 끌고오기) 찾기 >> 서로 일치하는지 여부 확인!
+    // 투어전체 가지고 올 때 배열로 가지고 와야 편한다. 투어타입별로 정렬!. >> 매칭 시키자!
+    const userTourType = user.tourType;
+
+    // 모든 투어에서 투어 타입 가지고 오기
+    const allTourType = await this.tourRepository.find({
+      select: ['tourType'],
+    });
+    // const allTourTypeValues = allTourType.map((tour) => tour.tourType);
+
+    // 유저 투어타입과 일치하는 투어타입 찾기
+    const matchTourType = await this.tourRepository.find({
+      where: { tourType: userTourType },
+    });
+
+    return matchTourType;
   }
 
   // 투어 상세 조회
@@ -203,5 +237,90 @@ export class TourService {
     //   }
 
     await this.tourRepository.delete({ id });
+  }
+
+  // 투어 좋아요 기능  // 좋아요 숫자가 보이게 해야한다.(등록된 투어에) 인기순으로 나열.
+  async createLike({ tourId, userId }: CreateLikeDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // 투어가 존재하는지 확인
+      const tour = await queryRunner.manager.findOne(Tour, {
+        where: { id: tourId },
+      });
+
+      if (!tour) {
+        throw new NotFoundException('해당 투어 정보가 없습니다.');
+      }
+
+      // 사용자가 이미 해당 투어를 좋아요 했는지 확인
+      const existingLike = await queryRunner.manager.findOne(TourLike, {
+        where: { tour: { id: tourId }, user: { id: userId } },
+      });
+      // 투어에 좋아요가 없다면 좋아요 생성
+      if (!existingLike) {
+        await queryRunner.manager.save(TourLike, {
+          tour: { id: tourId },
+          user: { id: userId },
+        });
+        // 좋아요 수 증가
+        await queryRunner.manager.update(Tour, tourId, {
+          likeCount: tour.likeCount + 1,
+        });
+      } else {
+        throw new BadRequestException('이미 좋아요를 눌렀습니다!');
+      }
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      throw err;
+    }
+  }
+
+  // 좋아요 취소 --------
+  async createDisLike({ tourId, userId }: CreateLikeDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      // 투어가 존재하는지 확인
+      const tour = await queryRunner.manager.findOne(Tour, {
+        where: { id: tourId },
+      });
+
+      if (!tour) {
+        throw new NotFoundException('해당 투어 정보가 없습니다.');
+      }
+
+      // 사용자가 해당 투어를 좋아요 했는지 확인
+      const existingLike = await queryRunner.manager.findOne(TourLike, {
+        where: { tour: { id: tourId }, user: { id: userId } },
+      });
+      // 투어에 좋아요가 있다면 좋아요 취소
+      if (existingLike) {
+        await queryRunner.manager.delete(TourLike, existingLike.id);
+        // 투어의 좋아요 수 감소
+        await queryRunner.manager.update(Tour, tourId, {
+          likeCount: tour.likeCount - 1,
+        });
+      } else {
+        throw new BadRequestException('이미 좋아요 취소를 눌렀습니다!');
+      }
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return true;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      throw err;
+    }
   }
 }

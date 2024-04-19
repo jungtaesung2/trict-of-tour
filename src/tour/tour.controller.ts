@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Query,
+  Request,
 } from '@nestjs/common';
 import { TourService } from './tour.service';
 import { CreateTourDto } from './dto/create-tour.dto';
@@ -18,6 +19,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { S3 } from 'aws-sdk';
 import { FindAllTourDto } from './dto/findAll-tour.dto';
 import { ConfigService } from '@nestjs/config';
+import { User } from 'src/user/entities/user.entity';
+import { CreateLikeDto } from './dto/create-like.dto';
 
 @Controller('tour')
 export class TourController {
@@ -77,6 +80,20 @@ export class TourController {
     };
   }
 
+  // 추천 API 작성
+  // @UseGuards(AuthGuard('jwt'))
+  @Get('recommendation')
+  async tourRecommendation(@Request() req) {
+    const data = await this.tourService.findOneUserRegion(userId);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '투어 추천조회에 성공했습니다.',
+      data,
+    };
+  }
+
+  // 상세조회
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const data = await this.tourService.findOne(+id);
@@ -113,5 +130,44 @@ export class TourController {
       message: '투어 삭제에 성공했습니다.',
       data,
     };
+  }
+
+  // 투어 좋아요 기능
+  @Post('/like')
+  async createLike(@Request() req, @Body() createLikeDto: CreateLikeDto) {
+    try {
+      const data = await this.tourService.createLike(createLikeDto);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: '좋아요 성공했습니다.',
+        data,
+      };
+    } catch (error) {
+      // 예외 처리
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: '이미 좋아요를 눌렀습니다.', // 예외 메시지 반환
+      };
+    }
+  }
+
+  @Post('/dislike')
+  async createDisLike(@Request() req, @Body() createLikeDto: CreateLikeDto) {
+    try {
+      const data = await this.tourService.createDisLike(createLikeDto);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: '좋아요를 취소했습니다.',
+        data,
+      };
+    } catch (error) {
+      // 예외 처리
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: '이미 좋아요 취소를 눌렀습니다.', // 예외 메시지 반환
+      };
+    }
   }
 }

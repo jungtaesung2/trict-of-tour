@@ -1,1 +1,1 @@
-create database 'FinalProject'
+DROP DATABASE finalprojectsong;
