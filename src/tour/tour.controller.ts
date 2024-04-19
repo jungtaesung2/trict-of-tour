@@ -82,16 +82,16 @@ export class TourController {
 
   // 추천 API 작성
   // @UseGuards(AuthGuard('jwt'))
-  @Get('recommendation')
-  async tourRecommendation(@Request() req) {
-    const data = await this.tourService.findOneUserRegion(userId);
+  // @Get('recommendation')
+  // async tourRecommendation(@Request() req) {
+  //   const data = await this.tourService.findOneUserRegion(userId);
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: '투어 추천조회에 성공했습니다.',
-      data,
-    };
-  }
+  //   return {
+  //     statusCode: HttpStatus.OK,
+  //     message: '투어 추천조회에 성공했습니다.',
+  //     data,
+  //   };
+  // }
 
   // 상세조회
   @Get(':id')

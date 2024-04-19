@@ -145,30 +145,30 @@ export class TourService {
   }
 
   // 투어 추천 조회
-  async findOneUserRegion(userId: number) {
-    //  유저 존재 여부
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
-    }
+  // async findOneUserRegion(userId: number) {
+  //   //  유저 존재 여부
+  //   const user = await this.userRepository.findOne({ where: { id: userId } });
+  //   if (!user) {
+  //     throw new NotFoundException('사용자를 찾을 수 없습니다.');
+  //   }
 
-    // 유저 투어타입 찾기 , 투어타입(투어전체 끌고오기) 찾기 >> 서로 일치하는지 여부 확인!
-    // 투어전체 가지고 올 때 배열로 가지고 와야 편한다. 투어타입별로 정렬!. >> 매칭 시키자!
-    const userTourType = user.tourType;
+  //   // 유저 투어타입 찾기 , 투어타입(투어전체 끌고오기) 찾기 >> 서로 일치하는지 여부 확인!
+  //   // 투어전체 가지고 올 때 배열로 가지고 와야 편한다. 투어타입별로 정렬!. >> 매칭 시키자!
+  //   const userTourType = user.tourType;
 
-    // 모든 투어에서 투어 타입 가지고 오기
-    const allTourType = await this.tourRepository.find({
-      select: ['tourType'],
-    });
-    // const allTourTypeValues = allTourType.map((tour) => tour.tourType);
+  //   // 모든 투어에서 투어 타입 가지고 오기
+  //   const allTourType = await this.tourRepository.find({
+  //     select: ['tourType'],
+  //   });
+  //   // const allTourTypeValues = allTourType.map((tour) => tour.tourType);
 
-    // 유저 투어타입과 일치하는 투어타입 찾기
-    const matchTourType = await this.tourRepository.find({
-      where: { tourType: userTourType },
-    });
+  //   // 유저 투어타입과 일치하는 투어타입 찾기
+  //   const matchTourType = await this.tourRepository.find({
+  //     where: { tourType: userTourType },
+  //   });
 
-    return matchTourType;
-  }
+  //   return matchTourType;
+  // }
 
   // 투어 상세 조회
   async findOne(id: number) {
