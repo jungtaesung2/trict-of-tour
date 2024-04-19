@@ -16,7 +16,7 @@ export class Chat {
   @Column({ length: 18 })
   name: string;
 
-  @Column({ length: 36, unique: true })
+  @Column({ length: 36 })
   room: string;
 
   @OneToMany(() => ChatTalk, (chattalk) => chattalk.chat)

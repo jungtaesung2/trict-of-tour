@@ -1,5 +1,7 @@
 import { IsEmail } from 'class-validator';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { ChatTalk } from 'src/chat/entities/chattalk.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
@@ -30,4 +32,12 @@ export class User {
 
   @Column({ type: 'datetime' })
   updatedAt: Date;
+
+  // User와 Chat의 일대다 관계
+  @OneToMany(() => Chat, (chat) => chat.user)
+  chats: Chat[];
+
+  // User와 ChatTalk의 일대다 관계
+  @OneToMany(() => ChatTalk, (chatTalk) => chatTalk.user)
+  chatTalks: ChatTalk[];
 }

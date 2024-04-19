@@ -4,7 +4,6 @@ import { Chat } from './entities/chat.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { ChatTalk } from './entities/chattalk.entity';
-import { ChatGateway } from 'src/gateway/chat.gateway';
 
 @Injectable()
 export class ChatService {
@@ -15,13 +14,17 @@ export class ChatService {
     // private chatTalkRepository: Repository<ChatTalk>,
     @InjectRepository(User)
     private userRepostiory: Repository<User>,
-    private chatGateway: ChatGateway,
   ) {}
 
   async getChatHistory(userId: number, chatId: number): Promise<Chat[]> {
-    const user = await this.userRepostiory.findOne({ where: { id: userId } });
+    const user = await this.userRepostiory.findOne({
+      where: { id: userId },
+      relations: ['chats', 'chatTalks'],
+    });
     if (!user) {
-      throw new NotFoundException('해당 ID의 유저를 찾을 수 없습니다.');
+      throw new NotFoundException(
+        '해당 ID의 유저의 채팅 정보를 찾을 수 없습니다.',
+      );
     }
 
     const chatHistory = await this.chatRepository.findOne({
@@ -48,6 +51,8 @@ export class ChatService {
 
   async saveChatMessage(data: { message: string; room: string }) {
     try {
+      // const user = req.user;
+
       // 입장한 소켓 룸이 일치하는지
       const chatting = await this.chatRepository.findOne({
         where: { room: data.room },
