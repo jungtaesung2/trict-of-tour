@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Tour } from './tour/entities/tour.entity';
-import { Region } from './tour/entities/region.entity';
 import { TourModule } from './tour/tour.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -19,6 +18,12 @@ import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
 import { User } from './user/entities/user.entity';
 import { MileageHistory } from './mileages/entities/mileageHistory.entity';
+import { UserInfo } from './user/entities/userinfo.entity';
+import { AuthModule } from './auth/auth.module';
+import { Region } from './tour/entities/region.entity';
+import { TourLike } from './tour/entities/like.entity';
+
+
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -30,7 +35,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review, Reservation, Mileage, MileageHistory, User],
+    entities: [Tour, Region, Review, Reservation, TourLike, User, UserInfo, Mileage, MileageHistory],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -60,7 +65,9 @@ const typeOrmModuleOptions = {
     MileagesModule,
     UserModule,
     GuideModule,
+    AuthModule,
   ],
+
 
   controllers: [AppController],
   providers: [AppService, ReservationSchedulerService],

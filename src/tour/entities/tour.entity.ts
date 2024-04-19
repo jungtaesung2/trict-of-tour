@@ -14,6 +14,8 @@ import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Region } from './region.entity';
+import { User } from 'src/user/entities/user.entity';
+import { TourLike } from './like.entity';
 
 @Entity({ name: 'tours' })
 export class Tour {
@@ -80,12 +82,17 @@ export class Tour {
   @Column({ type: 'text', nullable: false })
   longitude: number;
 
+  @IsNumber()
+  @IsNotEmpty({ message: '좋아요 수를 입력해주세요' })
+  @Column({ type: 'int', default: 0 })
+  likeCount: number;
+
   @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
-  
+
   @OneToMany(() => Reservation, (reservations) => reservations.tour)
   reservations: Reservation[];
   @OneToMany(() => Review, (reviews) => reviews.tour) 
@@ -102,4 +109,10 @@ export class Tour {
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;
   
+  @OneToMany(() => TourLike, (tourLikes) => tourLikes.tour)
+  tourLikes: TourLike[];
+
+  @JoinColumn({ name: 'userId' })
+  @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
+  user: User;
 }

@@ -30,4 +30,4 @@ export class CreateUserDto extends PickType(User, [
       
     // @IsNotEmpty({ message: '전화번호를 입력해주세요.' })
     // phoneNumber: string;
-  }
+}
