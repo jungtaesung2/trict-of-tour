@@ -1,5 +1,9 @@
-import { IsEmail } from 'class-validator';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+// import { UserRegion } from 'src/tour/entities/userRegion.entity';
+import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
+import { TourLike } from 'src/tour/entities/like.entity';
+import { Tour } from 'src/tour/entities/tour.entity';
+import { TourType } from 'src/tour/types/tourtypes.enum';
+import { OneToMany, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -22,9 +26,20 @@ export class User {
     @Column({ type: 'varchar', length: 255 })
     phoneNumber: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    tourType: string;
+    @IsString()
+    @IsNotEmpty({ message: '투어타입을 입력해주세요' })
+    @Column({ type: 'varchar' })
+    tourType: TourType;
 
+  //   @OneToMany(() => UserRegion, (userRegion) => userRegion.user)
+  //   userRegions: UserRegion[];
+
+    @OneToMany(() => Tour, (tour) => tour.user)
+    tours: Tour[];
+
+    @OneToMany(() => TourLike, (tourLike) => tourLike.user)
+    tourLikes: TourLike[];
+  
     @CreateDateColumn({ type: 'datetime' })
     createdAt: Date;
 
