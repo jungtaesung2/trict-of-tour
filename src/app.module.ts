@@ -10,15 +10,19 @@ import { ReservationModule } from './reservation/reservation.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/entities/review.entity';
 import { Reservation } from './reservation/entities/reservation.entity';
+import { MileagesModule } from './mileages/mileages.module';
+import { Mileage } from './mileages/entities/mileages.entity';
 import { ReservationSchedulerService } from './scheduler/scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
 import { User } from './user/entities/user.entity';
+import { MileageHistory } from './mileages/entities/mileageHistory.entity';
 import { UserInfo } from './user/entities/userinfo.entity';
 import { AuthModule } from './auth/auth.module';
 import { Region } from './tour/entities/region.entity';
 import { TourLike } from './tour/entities/like.entity';
+
 
 
 const typeOrmModuleOptions = {
@@ -31,7 +35,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review, Reservation, TourLike, User, UserInfo],
+    entities: [Tour, Region, Review, Reservation, TourLike, User, UserInfo, Mileage, MileageHistory],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -58,6 +62,7 @@ const typeOrmModuleOptions = {
     TourModule,
     ReviewsModule,
     ReservationModule,
+    MileagesModule,
     UserModule,
     GuideModule,
     AuthModule,

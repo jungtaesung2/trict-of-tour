@@ -1,40 +1,46 @@
+import { Tour } from 'src/tour/entities/tour.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { IsString } from 'class-validator';
+import { Mileage } from 'src/mileages/entities/mileages.entity';
 
-@Entity()
+@Entity({ name: 'reviews' })
 export class Review {
-  @PrimaryGeneratedColumn()
-  id: number;
+    
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column({ type: 'bigint' })
-  userId: number;
+    @Column({ type: 'int' })
+    userId: number;
 
-  @Column({ type: 'bigint' })
-  reservationId: number;
+    @IsString()
+    @Column({ type: 'varchar', length: 255, nullable: false  })
+    comment: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  comment: string;
+    @Column({ type: 'int' })
+    star: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  star: string;
+    @IsString()
+    @Column({ type: 'varchar', length: 255, nullable: false  })
+    image: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  image: string;
+    @CreateDateColumn()
+    createdAt: Date;
 
-  @Column({ type: 'datetime' })
-  createdAt: Date;
+    @UpdateDateColumn()
+    updatedAt: Date;
 
-  @Column({ type: 'datetime' })
-  updatedAt: Date;
+    @ManyToOne(() => Tour, (tour) => tour.reviews)
+    @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
+    tour: Tour;
 
-  @ManyToOne(() => Reservation, (reservations) => reservations.reviews)
-  @JoinColumn({ name: 'reservationId', referencedColumnName: 'id' })
-  reservations: Reservation;
-  tour: any;
+    @ManyToOne(() => Mileage, (mileages) => mileages.reviews)
+    @JoinColumn({ name: 'milegeId', referencedColumnName: 'id' })
+    mileages: Mileage;
+
+
+    @ManyToOne(() => Reservation, (reservations) => reservations.reviews)
+    @JoinColumn({ name: 'reservationId', referencedColumnName: 'id' })
+    reservations: Reservation;
 }
+
