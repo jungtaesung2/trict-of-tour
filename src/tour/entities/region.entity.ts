@@ -2,13 +2,13 @@ import {
   Column,
   Entity,
   JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Tour } from './tour.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { RegionName } from '../types/regiontypes.enum';
+// import { UserRegion } from './userRegion.entity';
 
 @Entity({ name: 'regions' })
 export class Region {
@@ -22,4 +22,7 @@ export class Region {
 
   @OneToMany(() => Tour, (tour) => tour.region, { cascade: true })
   tours: Tour[];
+
+  // @OneToMany(() => UserRegion, (userRegion) => userRegion.region)
+  // userRegions: UserRegion[];
 }

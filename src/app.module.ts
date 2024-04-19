@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Tour } from './tour/entities/tour.entity';
-import { Region } from './tour/entities/region.entity';
 import { TourModule } from './tour/tour.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -15,7 +14,9 @@ import { ReservationSchedulerService } from './scheduler/scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
-
+import { Region } from './tour/entities/region.entity';
+import { TourLike } from './tour/entities/like.entity';
+import { User } from './user/entities/user.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -27,7 +28,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review, Reservation],
+    entities: [Tour, Region, Review, Reservation, TourLike, User],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,

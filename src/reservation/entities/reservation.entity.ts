@@ -28,7 +28,7 @@ export class Reservation {
   id: number;
 
   @IsNumber()
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: true })
   userId: number;
 
   @IsString()
