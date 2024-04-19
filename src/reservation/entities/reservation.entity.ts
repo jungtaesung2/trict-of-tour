@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   ManyToOne,
   JoinColumn,
   OneToMany,
@@ -73,8 +74,14 @@ export class Reservation {
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  cancelledAt: Date; // 추가된 cancelledAt 속성
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   // @ManyToOne(() => User, (user) => user.reservations)
   // @JoinColumn({ name: 'userId' })
