@@ -1,6 +1,7 @@
 import { PickType } from '@nestjs/mapped-types';
 import { User } from '../entities/user.entity';
 import { Column } from 'typeorm';
+import { IsString } from 'class-validator';
 
 export class UpdateUserDto extends PickType(User, [
     `name`,
@@ -9,21 +10,21 @@ export class UpdateUserDto extends PickType(User, [
     `phoneNumber`,
 ]) {
 
-    @Column({ type: 'varchar', length: 30, default : null})
+    @IsString()
     name: string;
 
-    @Column({ type: 'varchar', length: 30, default : null})
+    @IsString()
     nickname: string;
     
-    @Column({ type: 'varchar', length: 30, default : null})
+    @IsString()
     email: string;
     
-    @Column({ type: 'varchar', length: 12, default : null})
+    @IsString()
     phoneumber: string;
     
-    @Column({ type: 'varchar', default : null})
+    @IsString()
     newPassword: string;
     
-    @Column({ type: 'varchar', default : null })
+    @IsString() 
     newPasswordConfirm: string;
 }

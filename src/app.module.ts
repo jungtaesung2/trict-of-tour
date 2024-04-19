@@ -16,6 +16,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
 import { User } from './user/entities/user.entity';
+import { UserInfo } from './user/entities/userinfo.entity';
+import { AuthModule } from './auth/auth.module';
 
 
 const typeOrmModuleOptions = {
@@ -28,7 +30,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, Tour, Region, Review, Reservation],
+    entities: [User, UserInfo, Tour, Region, Review, Reservation],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -57,6 +59,7 @@ const typeOrmModuleOptions = {
     ReservationModule,
     UserModule,
     GuideModule,
+    AuthModule,
   ],
 
 

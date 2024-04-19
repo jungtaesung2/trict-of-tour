@@ -1,5 +1,5 @@
 import { IsEmail } from 'class-validator';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -25,9 +25,12 @@ export class User {
     @Column({ type: 'varchar', length: 255 })
     tourType: string;
 
-    @Column({ type: 'datetime' })
+    @CreateDateColumn({ type: 'datetime' })
     createdAt: Date;
 
-    @Column({ type: 'datetime' })
+    @UpdateDateColumn({ type: 'datetime' })
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt : Date | null;
 }
