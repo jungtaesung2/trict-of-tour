@@ -1,16 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { ChatTalk } from './chattalk.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'chat' })
 export class Chat {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 255 })
-  content: string;
+  @Column({ length: 18 })
+  name: string;
 
-  @Column()
-  senderId: number;
+  @Column({ length: 36, unique: true })
+  room: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  sentAt: Date;
+  @OneToMany(() => ChatTalk, (chattalk) => chattalk.chat)
+  chattalk: ChatTalk[];
 }

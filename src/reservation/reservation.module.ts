@@ -7,7 +7,7 @@ import { TourService } from 'src/tour/tour.service';
 import { Tour } from '../tour/entities/tour.entity';
 import { Region } from 'src/tour/entities/region.entity';
 import { ReservationSchedulerService } from 'src/scheduler/scheduler.service';
-import { ReservationGateWay } from '../public/gateway/reservation.gateway';
+import { ReservationGateWay } from '../gateway/reservation.gateway';
 
 @Module({
   imports: [

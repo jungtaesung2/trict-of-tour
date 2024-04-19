@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useWebSocketAdapter(redisIoAdapter);
   console.log('레디스연결확인', redisIoAdapter);
 
-  // CORS 설정
+  // CORS 설정//request를 받고 싶은, 할 수 있는 목록을 정하는 것!!!
   app.enableCors({
     origin: ['http://localhost:4200', 'http://localhost:4000'], // 허용할 오리진 설정
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

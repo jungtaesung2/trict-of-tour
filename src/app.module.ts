@@ -17,9 +17,12 @@ import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
 import { ChatModule } from './chat/chat.module';
 import { Chat } from './chat/entities/chat.entity';
-import { ChatGateway } from '../src/public/gateway/chat.gateway';
-import { ReservationGateWay } from '../src/public/gateway/reservation.gateway';
+import { ChatTalk } from './chat/entities/chattalk.entity';
+import { ChatGateway } from './gateway/chat.gateway';
+import { ReservationGateWay } from './gateway/reservation.gateway';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
+import { ChatTalkModule } from './chattalk/chattalk.module';
+import { User } from './user/entities/user.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -31,7 +34,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [Tour, Region, Review, Reservation, Chat],
+    entities: [Tour, Region, Review, Reservation, Chat, ChatTalk, User],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -61,6 +64,8 @@ const typeOrmModuleOptions = {
     UserModule,
     GuideModule,
     ChatModule,
+    ChatTalkModule,
+    UserModule,
   ],
 
   controllers: [AppController],
