@@ -16,24 +16,18 @@ import { ReservationSchedulerService } from './scheduler/scheduler.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { GuideModule } from './guide/guide.module';
-<<<<<<< HEAD
 import { User } from './user/entities/user.entity';
 import { MileageHistory } from './mileages/entities/mileageHistory.entity';
 import { UserInfo } from './user/entities/userinfo.entity';
 import { AuthModule } from './auth/auth.module';
 import { Region } from './tour/entities/region.entity';
 import { TourLike } from './tour/entities/like.entity';
-
-
-=======
 import { ChatModule } from './chat/chat.module';
 import { Chat } from './chat/entities/chat.entity';
 import { ChatTalk } from './chat/entities/chattalk.entity';
 import { ChatGateway } from './gateway/chat.gateway';
 import { ReservationGateWay } from './gateway/reservation.gateway';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
-import { User } from './user/entities/user.entity';
->>>>>>> 28fb44f427c1ea5e1b06dd9e2c4abcf939fefe6e
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -45,11 +39,19 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-<<<<<<< HEAD
-    entities: [Tour, Region, Review, Reservation, TourLike, User, UserInfo, Mileage, MileageHistory],
-=======
-    entities: [Tour, Region, Review, Reservation, Chat, ChatTalk, User],
->>>>>>> 28fb44f427c1ea5e1b06dd9e2c4abcf939fefe6e
+    entities: [
+      Tour,
+      Region,
+      Review,
+      Reservation,
+      TourLike,
+      User,
+      UserInfo,
+      Mileage,
+      MileageHistory,
+      Chat,
+      ChatTalk,
+    ],
 
     synchronize: configService.get('DB_SYNC'),
     logging: true,
@@ -79,14 +81,9 @@ const typeOrmModuleOptions = {
     MileagesModule,
     UserModule,
     GuideModule,
-<<<<<<< HEAD
     AuthModule,
-=======
     ChatModule,
-    UserModule,
->>>>>>> 28fb44f427c1ea5e1b06dd9e2c4abcf939fefe6e
   ],
-
 
   controllers: [AppController],
   providers: [

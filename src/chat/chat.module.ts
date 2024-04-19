@@ -5,7 +5,7 @@ import { ChatGateway } from '../gateway/chat.gateway';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
 import { ChatTalk } from './entities/chattalk.entity';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Chat, ChatTalk, User])],
