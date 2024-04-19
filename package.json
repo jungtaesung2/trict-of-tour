@@ -36,11 +36,8 @@
     "@types/multer": "^1.4.11",
     "@types/papaparse": "^5.3.14",
     "@types/passport-jwt": "^4.0.1",
-<<<<<<< HEAD
     "aws-sdk": "^2.1598.0",
-=======
     "@types/socket.io": "^3.0.2",
->>>>>>> 28fb44f427c1ea5e1b06dd9e2c4abcf939fefe6e
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
