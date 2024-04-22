@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { TourService } from './tour.service';
 import { CreateTourDto } from './dto/create-tour.dto';
@@ -21,6 +22,8 @@ import { FindAllTourDto } from './dto/findAll-tour.dto';
 import { ConfigService } from '@nestjs/config';
 import { User } from 'src/user/entities/user.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { UserInfo } from 'src/utils/userinfo.decorator';
 
 @Controller('tour')
 export class TourController {
@@ -81,17 +84,17 @@ export class TourController {
   }
 
   // 추천 API 작성
-  // @UseGuards(AuthGuard('jwt'))
-  // @Get('recommendation')
-  // async tourRecommendation(@Request() req) {
-  //   const data = await this.tourService.findOneUserRegion(userId);
+  @UseGuards(AuthGuard('jwt'))
+  @Get('recommendation')
+  async tourRecommendation(@UserInfo() user: User) {
+    const data = await this.tourService.findOneUserRegion(user.id);
 
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: '투어 추천조회에 성공했습니다.',
-  //     data,
-  //   };
-  // }
+    return {
+      statusCode: HttpStatus.OK,
+      message: '투어 추천조회에 성공했습니다.',
+      data,
+    };
+  }
 
   // 상세조회
   @Get(':id')
@@ -133,10 +136,14 @@ export class TourController {
   }
 
   // 투어 좋아요 기능
+  @UseGuards(AuthGuard('jwt'))
   @Post('/like')
-  async createLike(@Request() req, @Body() createLikeDto: CreateLikeDto) {
+  async createLike(
+    @UserInfo() user: User,
+    @Body() createLikeDto: CreateLikeDto,
+  ) {
     try {
-      const data = await this.tourService.createLike(createLikeDto);
+      const data = await this.tourService.createLike(user, createLikeDto);
 
       return {
         statusCode: HttpStatus.OK,
@@ -147,15 +154,20 @@ export class TourController {
       // 예외 처리
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: '이미 좋아요를 눌렀습니다.', // 예외 메시지 반환
+        message: '이미 좋아요를 눌렀습니다. 좋아요 생성이 안됩니다', // 예외 메시지 반환
       };
     }
   }
 
+  // 투어 좋아요 취소 기능
+  @UseGuards(AuthGuard('jwt'))
   @Post('/dislike')
-  async createDisLike(@Request() req, @Body() createLikeDto: CreateLikeDto) {
+  async createDisLike(
+    @UserInfo() user: User,
+    @Body() createLikeDto: CreateLikeDto,
+  ) {
     try {
-      const data = await this.tourService.createDisLike(createLikeDto);
+      const data = await this.tourService.createDisLike(user, createLikeDto);
 
       return {
         statusCode: HttpStatus.OK,
@@ -166,7 +178,7 @@ export class TourController {
       // 예외 처리
       return {
         statusCode: HttpStatus.BAD_REQUEST,
-        message: '이미 좋아요 취소를 눌렀습니다.', // 예외 메시지 반환
+        message: '이미 좋아요 취소를 눌렀습니다. 좋아요 취소가 안됩니다.', // 예외 메시지 반환
       };
     }
   }

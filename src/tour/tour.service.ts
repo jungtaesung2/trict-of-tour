@@ -145,30 +145,30 @@ export class TourService {
   }
 
   // 투어 추천 조회
-  // async findOneUserRegion(userId: number) {
-  //   //  유저 존재 여부
-  //   const user = await this.userRepository.findOne({ where: { id: userId } });
-  //   if (!user) {
-  //     throw new NotFoundException('사용자를 찾을 수 없습니다.');
-  //   }
+  async findOneUserRegion(userId: number) {
+    //  유저 존재 여부
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
 
-  //   // 유저 투어타입 찾기 , 투어타입(투어전체 끌고오기) 찾기 >> 서로 일치하는지 여부 확인!
-  //   // 투어전체 가지고 올 때 배열로 가지고 와야 편한다. 투어타입별로 정렬!. >> 매칭 시키자!
-  //   const userTourType = user.tourType;
+    // 유저 투어타입 찾기 , 투어타입(투어전체 끌고오기) 찾기 >> 서로 일치하는지 여부 확인!
+    // 투어전체 가지고 올 때 배열로 가지고 와야 편한다. 투어타입별로 정렬!. >> 매칭 시키자!
+    const userTourType = user.tourType;
 
-  //   // 모든 투어에서 투어 타입 가지고 오기
-  //   const allTourType = await this.tourRepository.find({
-  //     select: ['tourType'],
-  //   });
-  //   // const allTourTypeValues = allTourType.map((tour) => tour.tourType);
+    // 모든 투어에서 투어 타입 가지고 오기
+    const allTourType = await this.tourRepository.find({
+      select: ['tourType'],
+    });
+    // const allTourTypeValues = allTourType.map((tour) => tour.tourType);
 
-  //   // 유저 투어타입과 일치하는 투어타입 찾기
-  //   const matchTourType = await this.tourRepository.find({
-  //     where: { tourType: userTourType },
-  //   });
+    // 유저 투어타입과 일치하는 투어타입 찾기
+    const matchTourType = await this.tourRepository.find({
+      where: { tourType: userTourType },
+    });
 
-  //   return matchTourType;
-  // }
+    return matchTourType;
+  }
 
   // 투어 상세 조회
   async findOne(id: number) {
@@ -240,7 +240,7 @@ export class TourService {
   }
 
   // 투어 좋아요 기능  // 좋아요 숫자가 보이게 해야한다.(등록된 투어에) 인기순으로 나열.
-  async createLike({ tourId, userId }: CreateLikeDto) {
+  async createLike(user: User, { tourId }: CreateLikeDto) {
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();
@@ -257,14 +257,15 @@ export class TourService {
 
       // 사용자가 이미 해당 투어를 좋아요 했는지 확인
       const existingLike = await queryRunner.manager.findOne(TourLike, {
-        where: { tour: { id: tourId }, user: { id: userId } },
+        where: { tour: { id: tourId }, user: { id: user.id } },
       });
       // 투어에 좋아요가 없다면 좋아요 생성
       if (!existingLike) {
         await queryRunner.manager.save(TourLike, {
           tour: { id: tourId },
-          user: { id: userId },
+          user: user,
         });
+
         // 좋아요 수 증가
         await queryRunner.manager.update(Tour, tourId, {
           likeCount: tour.likeCount + 1,
@@ -283,7 +284,7 @@ export class TourService {
   }
 
   // 좋아요 취소 --------
-  async createDisLike({ tourId, userId }: CreateLikeDto) {
+  async createDisLike(user: User, { tourId }: CreateLikeDto) {
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();
@@ -300,7 +301,7 @@ export class TourService {
 
       // 사용자가 해당 투어를 좋아요 했는지 확인
       const existingLike = await queryRunner.manager.findOne(TourLike, {
-        where: { tour: { id: tourId }, user: { id: userId } },
+        where: { tour: { id: tourId }, user: { id: user.id } },
       });
       // 투어에 좋아요가 있다면 좋아요 취소
       if (existingLike) {
