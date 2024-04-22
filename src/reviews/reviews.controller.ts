@@ -1,40 +1,44 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
-import { ReviewsService } from './reviews.service';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, UseGuards } from '@nestjs/common';
+import { ReviewsService } from '../reviews/reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { UserInfo } from 'src/utils/userinfo.decorator';
 
-@Controller('Reviews')
+
+
+@Controller('reviews')
 export class ReviewsController {
     constructor(private readonly ReviewsService: ReviewsService) {}
 
     //리뷰 작성
-
-    @Post()
-    create(@Body() createReviewDto: CreateReviewDto) {
-        return this.ReviewsService.create(createReviewDto);
-    }
-    // 리뷰 조회
-    @Get()
-    findOne(@Param('reviews') reviews: string) {
-        return this.ReviewsService.findOne(+reviews);
-    }
     
-    //리뷰 전체조회
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/:tourId')
+    create(@UserInfo() user, @Param() params: { tourId: number, reservationId: number }, @Body() createReviewDto : CreateReviewDto) {
+        return this.ReviewsService.create(params.tourId, params.reservationId, createReviewDto);
+    }
 
-    // @Get('tour/:tourId')
-    // findByTourId(@Param('tourId') tourId: string) {
-    //     return this.ReviewsService.findByTourId(+tourId);
-    // }
+    @Get('/list')
+    async findByTourId(@Query('tourId') tourId: number) {
+    console.log(tourId);
+    return this.ReviewsService.findOneByTourId(tourId);
+}
+    // 리뷰 상세조회
+    @Get(':reviewId')
+    findOne(@Param('reviewId') reviewId: number) {
+        return this.ReviewsService.findOne(+reviewId);
+    }
     
     //리뷰 수정
-    @Patch(':reviewid')
-    update(@Param('reviewid') reviewid: string, @Body() updateReviewDto: UpdateReviewDto) {
-        return this.ReviewsService.update(+reviewid, updateReviewDto);
+    @Patch(':reviewId')
+    update(@Param('reviewId') reviewId: number, @Body() updateReviewDto: UpdateReviewDto) {
+        return this.ReviewsService.update(+reviewId, updateReviewDto);
     }
 
     //리뷰 삭제
-    @Delete(':reviewid')
-    remove(@Param('reviewid') reviewid: string) {
-        return this.ReviewsService.remove(+reviewid);
+    @Delete(':reviewId')
+    remove(@Param('reviewId') reviewId: number) {
+        return this.ReviewsService.remove(+reviewId);
     }
 }

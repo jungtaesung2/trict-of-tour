@@ -4,7 +4,6 @@ import {
   IsString,
   IsNumber,
   IsDate,
-  IsBoolean,
 } from 'class-validator';
 import {
   Column,
@@ -16,11 +15,13 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 // import { User } from './user.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
 import { Status } from '../types/status.type';
 import { Review } from 'src/reviews/entities/review.entity';
+import { Mileage } from 'src/mileages/entities/mileages.entity';
 
 @Entity({ name: 'reservations' })
 export class Reservation {
@@ -30,6 +31,10 @@ export class Reservation {
   @IsNumber()
   @Column({ type: 'int', nullable: true })
   userId: number;
+
+  @IsNumber()
+  @Column({ type: 'int', nullable: false })
+  tourId: number;
 
   @IsString()
   @Column({ type: 'varchar', nullable: false })
@@ -59,7 +64,7 @@ export class Reservation {
   lastname: string;
 
   @IsString() // 취소 이유를 저장할 데이터베이스 필드
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', nullable: true }) // 취소 이유는 선택적으로 저장될 수 있음
   cancelReason: string;
 
   @IsEnum(Status)
@@ -69,11 +74,11 @@ export class Reservation {
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // updatedAt: Date;
 
-  // @Column({ type: 'timestamp', nullable: true })
-  // cancelledAt: Date; // 추가된 cancelledAt 속성
+  @Column({ type: 'timestamp', nullable: true })
+  cancelledAt: Date; // 추가된 cancelledAt 속성
 
   @DeleteDateColumn()
   deletedAt: Date;
@@ -83,9 +88,11 @@ export class Reservation {
   // user: User;
 
   @ManyToOne(() => Tour, (tour) => tour.reservations)
-  @JoinColumn({ name: 'tourId', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'tourId' })
   tour: Tour;
-
+  
   @OneToMany(() => Review, (reviews) => reviews.reservations)
-  reviews: Review[];
+  reviews: Review;
+  @ManyToMany(() => Mileage, mileages => mileages.reservations)
+  Mileage: Mileage[]; 
 }
