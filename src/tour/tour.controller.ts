@@ -59,7 +59,13 @@ export class TourController {
 
         const url = `https://gksaprkbucket.s3.ap-northeast-2.amazonaws.com/${key}${file.originalname}`;
 
-        const tour = await this.tourService.createTour(createTourDto, url);
+        const fileKey = key;
+
+        const tour = await this.tourService.createTour(
+          createTourDto,
+          url,
+          fileKey,
+        );
 
         return {
           statusCode: HttpStatus.CREATED,
@@ -85,13 +91,27 @@ export class TourController {
 
   // 추천 API 작성
   @UseGuards(AuthGuard('jwt'))
-  @Get('recommendation')
+  @Get('/recommendation')
   async tourRecommendation(@UserInfo() user: User) {
     const data = await this.tourService.findOneUserRegion(user.id);
 
     return {
       statusCode: HttpStatus.OK,
       message: '투어 추천조회에 성공했습니다.',
+      data,
+    };
+  }
+
+  // 투어 좋아요 수에 따라 정렬 조회
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/like-order')
+  async tourLikeOrder(@UserInfo() user: User) {
+    const data = await this.tourService.tourLikeOrder(user.id, user.tourType);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '투어 좋아요 정렬에 성공했습니다.',
       data,
     };
   }
