@@ -27,5 +27,6 @@ export class ChatTalk {
   chat: Chat;
 
   @ManyToOne(() => User, (user) => user.chatTalks)
+  @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: User;
 }

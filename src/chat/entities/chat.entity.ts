@@ -19,6 +19,8 @@ export class Chat {
   @Column({ length: 36 })
   room: string;
 
+  //guide필요
+
   @OneToMany(() => ChatTalk, (chattalk) => chattalk.chat)
   chattalk: ChatTalk[];
 

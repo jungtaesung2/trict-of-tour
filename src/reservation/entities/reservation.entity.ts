@@ -22,6 +22,8 @@ import { Tour } from 'src/tour/entities/tour.entity';
 import { Status } from '../types/status.type';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Mileage } from 'src/mileages/entities/mileages.entity';
+import { User } from 'src/user/entities/user.entity';
+import { UserInfo } from 'src/user/entities/userinfo.entity';
 
 @Entity({ name: 'reservations' })
 export class Reservation {
@@ -83,16 +85,20 @@ export class Reservation {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  // @ManyToOne(() => User, (user) => user.reservations)
-  // @JoinColumn({ name: 'userId' })
-  // user: User;
+  @ManyToOne(() => User, (user) => user.reservations)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @ManyToOne(() => UserInfo, (userInfo) => userInfo.reservations)
+  userInfo: UserInfo;
 
   @ManyToOne(() => Tour, (tour) => tour.reservations)
   @JoinColumn({ name: 'tourId' })
   tour: Tour;
-  
+
   @OneToMany(() => Review, (reviews) => reviews.reservations)
   reviews: Review;
-  @ManyToMany(() => Mileage, mileages => mileages.reservations)
-  Mileage: Mileage[]; 
+
+  @ManyToMany(() => Mileage, (mileages) => mileages.reservations)
+  Mileage: Mileage[];
 }

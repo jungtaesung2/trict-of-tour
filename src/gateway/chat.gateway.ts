@@ -17,6 +17,7 @@ export class ChatGateway {
   connectedClients: { [socketId: string]: boolean } = {};
   clientNickName: { [socketId: string]: string } = {};
   roomUsers: { [key: string]: string[] } = {};
+  users = [];
 
   handleConnection(@ConnectedSocket() client: Socket) {
     // 이미 연결된 클라이언트인지 확인
@@ -25,7 +26,11 @@ export class ChatGateway {
       return;
     }
     this.connectedClients[client.id] = true;
-
+    console.log(client.handshake.query);
+    this.users.push({
+      clientId: client.id,
+      userId: +client.handshake.query.id,
+    });
     console.log('New client connected');
   }
 
@@ -136,11 +141,18 @@ export class ChatGateway {
     @MessageBody() data: { message: string; room: string },
   ) {
     // 클라이언트가 보낸 채팅 메시지를 해당 방으로 전달하기!
+    const user = this.users.find((el) => el.clientId === client.id);
+    console.log(user);
     this.server.to(data.room).emit('chatMessage', {
-      userId: this.clientNickName[client.id],
+      userId: user.userId,
       message: data.message,
       room: data.room,
     });
-    await this.chatService.saveChatMessage(data);
+    await this.chatService.saveChatMessage({
+      message: data.message,
+      room: data.room,
+      userId: user.userId,
+    });
   }
 }
+//클라이언트 id 는 유저Id

@@ -10,8 +10,8 @@ export class ChatService {
   constructor(
     @InjectRepository(Chat)
     private chatRepository: Repository<Chat>,
-    // @InjectRepository(ChatTalk)
-    // private chatTalkRepository: Repository<ChatTalk>,
+    @InjectRepository(ChatTalk)
+    private chatTalkRepository: Repository<ChatTalk>,
     @InjectRepository(User)
     private userRepostiory: Repository<User>,
   ) {}
@@ -49,7 +49,11 @@ export class ChatService {
     }
   }
 
-  async saveChatMessage(data: { message: string; room: string }) {
+  async saveChatMessage(data: {
+    message: string;
+    room: string;
+    userId: number;
+  }) {
     try {
       // const user = req.user;
 
@@ -61,12 +65,21 @@ export class ChatService {
         throw new NotFoundException('해당 ID의 채팅방을 찾을 수 없습니다.');
       }
 
-      const chatMessage = new ChatTalk();
+      // const chatMessage = new ChatTalk();
 
-      chatMessage.content = data.message;
-      chatMessage.room = data.room;
+      // chatMessage.content = data.message;
+      // chatMessage.room = data.room;
+      // chatMessage.user = { id: data.userId };
+      //이자리에 user 엔티티 들어와야함
 
-      await this.chatRepository.save(chatMessage);
+      //편리해서? 위에 거 하기귀찮으니까
+      const chattalk = await this.chatTalkRepository.create({
+        content: data.message,
+        room: data.room,
+        user: { id: data.userId },
+      });
+
+      this.chatTalkRepository.save(chattalk);
     } catch (error) {
       console.error('Error saving chat message:', error);
     }
