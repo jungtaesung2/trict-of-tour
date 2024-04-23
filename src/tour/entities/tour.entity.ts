@@ -95,8 +95,8 @@ export class Tour {
 
   @OneToMany(() => Reservation, (reservations) => reservations.tour)
   reservations: Reservation[];
-  @OneToMany(() => Review, (reviews) => reviews.tour) 
-  reviews : Review[]
+  @OneToMany(() => Review, (reviews) => reviews.tour)
+  reviews: Review[];
 
   @JoinColumn({ name: 'regionId' })
   @ManyToOne(() => Region, (region) => region.tours, { onDelete: 'CASCADE' })
@@ -108,11 +108,14 @@ export class Tour {
 
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;
-  
+
   @OneToMany(() => TourLike, (tourLikes) => tourLikes.tour)
   tourLikes: TourLike[];
 
   @JoinColumn({ name: 'userId' })
   @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
   user: User;
+
+  @Column({ type: 'varchar', nullable: true, name: 'fileKey' })
+  fileKey: string;
 }

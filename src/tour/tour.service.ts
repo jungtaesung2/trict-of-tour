@@ -13,6 +13,9 @@ import { FindAllTourDto } from './dto/findAll-tour.dto';
 import { User } from 'src/user/entities/user.entity';
 import { TourLike } from './entities/like.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { S3 } from 'aws-sdk';
+import { ConfigService } from '@nestjs/config';
+import { TourType } from './types/tourtypes.enum';
 
 @Injectable()
 export class TourService {
@@ -28,8 +31,9 @@ export class TourService {
     private readonly userRepository: Repository<User>,
     // @InjectRepository(TourLike)
     // private readonly tourLikeRepository: Repository<TourLike>,
+    private readonly configService: ConfigService,
   ) {}
-  async createTour(createTourDto: CreateTourDto, url: string) {
+  async createTour(createTourDto: CreateTourDto, url: string, fileKey: string) {
     const {
       guideId,
       title,
@@ -120,6 +124,7 @@ export class TourService {
       latitude,
       longitude,
       region: { id: regionId },
+      fileKey,
     });
     return tour;
   }
@@ -155,19 +160,28 @@ export class TourService {
     // 유저 투어타입 찾기 , 투어타입(투어전체 끌고오기) 찾기 >> 서로 일치하는지 여부 확인!
     // 투어전체 가지고 올 때 배열로 가지고 와야 편한다. 투어타입별로 정렬!. >> 매칭 시키자!
     const userTourType = user.tourType;
+    const allTours = await this.tourRepository.find();
 
-    // 모든 투어에서 투어 타입 가지고 오기
-    const allTourType = await this.tourRepository.find({
-      select: ['tourType'],
-    });
-    // const allTourTypeValues = allTourType.map((tour) => tour.tourType);
+    // 사용자의 tourType과 일치하는 투어 필터링
+    const matchTourTypeTours = allTours.filter(
+      (tour) => tour.tourType === userTourType,
+    );
 
-    // 유저 투어타입과 일치하는 투어타입 찾기
+    return matchTourTypeTours;
+  }
+
+  // 투어 좋아요 수에 따라 정렬 조회
+
+  async tourLikeOrder(userId: number, tourType: TourType) {
     const matchTourType = await this.tourRepository.find({
-      where: { tourType: userTourType },
+      where: { tourType },
     });
 
-    return matchTourType;
+    const tourLikeOrder = matchTourType.sort(
+      (a, b) => b.likeCount - a.likeCount,
+    );
+
+    return tourLikeOrder;
   }
 
   // 투어 상세 조회
@@ -226,9 +240,23 @@ export class TourService {
   // 투어 삭제
   async removeTour(id: number) {
     // 투어 확인
-    const tour = await this.tourRepository.findOneBy({ id });
-    if (!tour) {
+    const findTour = await this.tourRepository.findOneBy({ id });
+    if (!findTour) {
       throw new BadRequestException('등록된 투어가 없습니다.');
+    }
+
+    if (findTour.fileKey) {
+      const s3 = new S3({
+        accessKeyId: this.configService.get<string>('S3_ACCESS_KEY'),
+        secretAccessKey: this.configService.get<string>('S3_SECRET_KEY'),
+      });
+
+      const deleteParams = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: findTour.fileKey,
+      };
+
+      await s3.deleteObject(deleteParams).promise();
     }
 
     // 가이드 확인
