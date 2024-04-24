@@ -3,6 +3,7 @@ import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { IsString } from 'class-validator';
 import { Mileage } from 'src/mileages/entities/mileages.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity({ name: 'reviews' })
 export class Review {
@@ -42,5 +43,9 @@ export class Review {
     @ManyToOne(() => Reservation, (reservations) => reservations.reviews)
     @JoinColumn({ name: 'reservationId', referencedColumnName: 'id' })
     reservations: Reservation;
+
+    @ManyToOne(() => User, (user) => user.review)
+    @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
+    user : User;
 }
 

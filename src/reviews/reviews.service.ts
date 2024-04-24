@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateReviewDto } from '../reviews/dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Review } from './entities/review.entity';
@@ -11,14 +11,14 @@ import { Reservation } from 'src/reservation/entities/reservation.entity';
 export class ReviewsService {
     constructor(
         @InjectRepository(Tour)
-      private readonly tourRepository: Repository<Tour>,
+        private readonly tourRepository: Repository<Tour>,
         @InjectRepository(Reservation)
         private readonly reservationRepository: Repository<Reservation>,
         @InjectRepository(Review)
         private readonly reviewRepository: Repository<Review>,        
     ) {}
 
-    async create(tourId : number, reservationId : number, createReviewDto: CreateReviewDto): Promise<{review: Review}> {
+    async create(tourId : number, reservationId : number, userId : number, createReviewDto: CreateReviewDto): Promise<{review: Review}> {
         const tour = await this.tourRepository.findOne({where : {id : tourId}});
         console.log('투어Id', tour);
         if (!tour) {
@@ -33,7 +33,8 @@ export class ReviewsService {
         comment : createReviewDto.comment,
         star: createReviewDto.star,
         image: createReviewDto.image,
-        tour : {id : tourId}
+        tour : {id : tourId},
+        userId
       });
         const createReview = await this.reviewRepository.save(newReview)
         return {review:createReview}
@@ -57,11 +58,14 @@ export class ReviewsService {
       return averageRating;
   }
     //리뷰 수정
-    async update(reviewId: number, updateReviewDto: UpdateReviewDto): Promise<{review: Review}> {
+    async update(reviewId: number, userId : number, updateReviewDto: UpdateReviewDto): Promise<{review: Review}> {
         const review = await this.findOne(reviewId);
         if(!review){
           throw new NotFoundException("해당하는 Id의 리뷰를 찾을 수 없습니다.")
         }
+        if (review.userId !== userId) {
+          throw new UnauthorizedException("해당 리뷰를 수정할 권한이 없습니다.");
+      }
         await this.reviewRepository.update(reviewId, updateReviewDto);
         const updateReview = await this.reviewRepository.findOne({where : {id : reviewId}})
         if(!updateReview){
@@ -70,18 +74,17 @@ export class ReviewsService {
         
         return {review:updateReview}
     }
-    // userid review의 userid랑 같은지?
-
     //리뷰 삭제
-    async remove(reviewId: number): Promise<{message : string}> {
+    async remove(reviewId: number, userId : number): Promise<{message : string}> {
       const review = await this.findOne(reviewId);
       if(!review){
         throw new NotFoundException("해당하는 Id의 리뷰를 찾을 수 없습니다.")
       }
+      if (review.userId !== userId) {
+        throw new UnauthorizedException("해당 리뷰를 삭제할 권한이 없습니다.");
+    }
         await this.reviewRepository.delete(reviewId);
         return {message:"리뷰가 삭제되었습니다"}
-
-    // 
     }
 }
 
