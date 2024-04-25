@@ -117,4 +117,8 @@ export class Tour {
   @JoinColumn({ name: 'userId' })
   @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
   user: User;
+
+  @IsString()
+  @Column({ type: 'varchar', nullable: true })
+  fileKey: string;
 }
