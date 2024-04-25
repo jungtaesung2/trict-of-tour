@@ -6,7 +6,10 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+import { Guide } from 'src/guide/entities/guide.entity';
 
 @Entity({ name: 'chat' })
 export class Chat {
@@ -26,4 +29,8 @@ export class Chat {
 
   @ManyToOne(() => User, (user) => user.chats)
   user: User;
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  participants: (User | Guide)[];
 }

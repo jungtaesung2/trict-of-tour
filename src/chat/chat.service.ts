@@ -4,6 +4,8 @@ import { Chat } from './entities/chat.entity';
 import { Repository } from 'typeorm';
 import { ChatTalk } from './entities/chattalk.entity';
 import { User } from '../user/entities/user.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Tour } from 'src/tour/entities/tour.entity';
 
 @Injectable()
 export class ChatService {
@@ -14,12 +16,16 @@ export class ChatService {
     private chatTalkRepository: Repository<ChatTalk>,
     @InjectRepository(User)
     private userRepostiory: Repository<User>,
+    @InjectRepository(Reservation)
+    private reservationRepostiory: Repository<Reservation>,
+    @InjectRepository(Tour)
+    private readonly tourRepository: Repository<Tour>,
   ) {}
 
-  async getChatHistory(userId: number, chatId: number): Promise<Chat[]> {
+  async getChatHistory(userId: number, chatId: number) {
     const user = await this.userRepostiory.findOne({
       where: { id: userId },
-      relations: ['chats', 'chatTalks'],
+      relations: ['chats'],
     });
     if (!user) {
       throw new NotFoundException(
@@ -27,15 +33,42 @@ export class ChatService {
       );
     }
 
-    const chatHistory = await this.chatRepository.findOne({
+    const chat = this.userRepostiory.findOne({
       where: { id: chatId },
+      relations: ['chatTalks'],
     });
 
-    if (!chatHistory) {
+    if (!chat) {
       throw new NotFoundException('사용자의 채팅 기록을 찾을 수 없습니다.');
     }
 
-    return [chatHistory];
+    return chat;
+  }
+
+  async createChatforReservation(reservationId: number) {
+    try {
+      const reservation = await this.reservationRepostiory.findOne({
+        where: { id: reservationId },
+        relations: ['guest', 'tour'],
+      });
+      if (!reservation) {
+        throw new NotFoundException('예약을 찾을 수 없습니다.');
+      }
+
+      const chat = new Chat();
+      chat.room = `reservation_${reservation.id}`;
+      chat.participants = [reservation.user];
+      // reservation.tour.guide
+
+      await this.chatRepository.save(chat);
+      return {
+        chatId: chat.id,
+        // guideId: reservation.tour.guide.id,
+        userId: reservation.user.id,
+      };
+    } catch (error) {
+      console.error('채팅방 만들기 실패', error);
+    }
   }
 
   async saveJoinedRoom(room: string) {
@@ -77,6 +110,7 @@ export class ChatService {
         content: data.message,
         room: data.room,
         user: { id: data.userId },
+        chat: chatting,
       });
 
       this.chatTalkRepository.save(chattalk);

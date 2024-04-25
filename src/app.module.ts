@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, applyDecorators } from '@nestjs/common';
 import Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -25,9 +25,12 @@ import { TourLike } from './tour/entities/like.entity';
 import { ChatModule } from './chat/chat.module';
 import { Chat } from './chat/entities/chat.entity';
 import { ChatTalk } from './chat/entities/chattalk.entity';
+import { Guide } from './guide/entities/guide.entity';
 import { ChatGateway } from './gateway/chat.gateway';
 import { ReservationGateWay } from './gateway/reservation.gateway';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
+import { Apple } from './reservation/entities/apple.entity';
+import { JwtService } from '@nestjs/jwt';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -51,6 +54,8 @@ const typeOrmModuleOptions = {
       MileageHistory,
       Chat,
       ChatTalk,
+      Guide,
+      Apple,
     ],
 
     synchronize: configService.get('DB_SYNC'),
@@ -92,6 +97,7 @@ const typeOrmModuleOptions = {
     ChatGateway,
     ReservationGateWay,
     RedisIoAdapter,
+    JwtService,
   ],
 })
 export class AppModule {}

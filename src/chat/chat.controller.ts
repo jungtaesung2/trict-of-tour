@@ -6,14 +6,14 @@ import { UserInfo } from 'src/utils/userinfo.decorator';
 import { User } from 'src/user/entities/user.entity';
 
 @UseGuards(AuthGuard('jwt'))
-@Controller('/chat-history')
+@Controller('/chathistory')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
-  @Get(':userId')
+  @Get(':chatId')
   async getChatHistory(
     @Param('chatId') chatId: number,
     @UserInfo() user: User,
-  ): Promise<Chat[]> {
+  ) {
     const userId = user.id;
     return await this.chatService.getChatHistory(userId, chatId);
   }
