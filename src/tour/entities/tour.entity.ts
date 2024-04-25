@@ -16,6 +16,7 @@ import { Review } from 'src/reviews/entities/review.entity';
 import { Region } from './region.entity';
 import { User } from 'src/user/entities/user.entity';
 import { TourLike } from './like.entity';
+import { Guide } from 'src/guide/entities/guide.entity';
 
 @Entity({ name: 'tours' })
 export class Tour {
@@ -27,10 +28,10 @@ export class Tour {
   // @Column({ type: 'int', unsigned: true, name: 'regionId', nullable: false })
   // regionId: number;
 
-  @IsNumber()
-  @IsNotEmpty({ message: '가이드 ID를 입력해주세요.' })
-  @Column({ type: 'int', unsigned: true, name: 'guideId', nullable: false })
-  guideId: number;
+  //   @IsNumber()
+  //   @IsNotEmpty({ message: '가이드 ID를 입력해주세요.' })
+  //   @Column({ type: 'int', unsigned: true, name: 'guideId', nullable: false })
+  //   guideId: number;
 
   @IsString()
   @IsNotEmpty({ message: '투어 이름을 입력해주세요.' })
@@ -95,6 +96,7 @@ export class Tour {
 
   @OneToMany(() => Reservation, (reservations) => reservations.tour)
   reservations: Reservation[];
+
   @OneToMany(() => Review, (reviews) => reviews.tour)
   reviews: Review[];
 
@@ -102,9 +104,9 @@ export class Tour {
   @ManyToOne(() => Region, (region) => region.tours, { onDelete: 'CASCADE' })
   region: Region;
 
-  // @JoinColumn({ name: 'guideId' })
-  // @ManyToOne(() => Guide, (guide) => guide.tours, { onDelete: 'CASCADE' })
-  // guide: Guide;
+  //   @JoinColumn({ name: 'guideId' })
+  //   @ManyToOne(() => Guide, (guide) => guide.tour, { onDelete: 'CASCADE' })
+  //   guide: Guide;
 
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;
@@ -115,7 +117,4 @@ export class Tour {
   @JoinColumn({ name: 'userId' })
   @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
   user: User;
-
-  @Column({ type: 'varchar', nullable: true, name: 'fileKey' })
-  fileKey: string;
 }

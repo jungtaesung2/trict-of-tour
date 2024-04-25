@@ -5,7 +5,6 @@ import express from 'express';
 import { join } from 'path';
 
 async function bootstrap() {
-
   const app = await NestFactory.create<NestApplication>(AppModule);
 
   const redisIoAdapter = new RedisIoAdapter(app);

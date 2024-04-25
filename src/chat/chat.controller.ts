@@ -2,17 +2,19 @@ import { Body, Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Chat } from './entities/chat.entity';
 import { AuthGuard } from '@nestjs/passport';
+import { UserInfo } from 'src/utils/userinfo.decorator';
+import { User } from 'src/user/entities/user.entity';
 
 @UseGuards(AuthGuard('jwt'))
-@Controller('/chat-history')
+@Controller('/chathistory')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
-
-  @Get(':userId')
+  @Get(':chatId')
   async getChatHistory(
-    @Param('userId') userId: number,
     @Param('chatId') chatId: number,
-  ): Promise<Chat[]> {
+    @UserInfo() user: User,
+  ) {
+    const userId = user.id;
     return await this.chatService.getChatHistory(userId, chatId);
   }
 }

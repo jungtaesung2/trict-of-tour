@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
-import { Tour } from './entities/tour.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Region } from './entities/region.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,9 +12,12 @@ import { FindAllTourDto } from './dto/findAll-tour.dto';
 import { User } from 'src/user/entities/user.entity';
 import { TourLike } from './entities/like.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { Guide } from 'src/guide/entities/guide.entity';
+import { Tour } from './entities/tour.entity';
 import { S3 } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 import { TourType } from './types/tourtypes.enum';
+
 
 @Injectable()
 export class TourService {
@@ -35,7 +37,6 @@ export class TourService {
   ) {}
   async createTour(createTourDto: CreateTourDto, url: string, fileKey: string) {
     const {
-      guideId,
       title,
       startDate,
       endDate,
@@ -112,7 +113,6 @@ export class TourService {
     }
 
     const tour = await this.tourRepository.save({
-      guideId,
       title,
       startDate,
       endDate,
@@ -199,7 +199,7 @@ export class TourService {
 
     return {
       id: tour.id,
-      guideId: tour.guideId,
+      // guideId: tour.guideId,
       title: tour.title,
       startDate: tour.startDate,
       endDate: tour.endDate,

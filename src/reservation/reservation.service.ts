@@ -10,14 +10,15 @@ import { Reservation } from '../reservation/entities/reservation.entity';
 import { Tour } from '../tour/entities/tour.entity';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ReservationService {
   constructor(
-    // @InjectRepository(DataSource)
-    // private readonly dataSource: DataSource,
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Reservation)
     private readonly reservationRepository: Repository<Reservation>,
   ) {}
@@ -65,6 +66,14 @@ export class ReservationService {
 
     if (!tour) {
       throw new NotFoundException('해당하는 투어를 찾지 못하였습니다.');
+    }
+
+    // 사용자 정보 가져오기
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    console.log('유저정보가져오기', user);
+
+    if (!user) {
+      throw new NotFoundException('해당하는 사용자를 찾지 못하였습니다.');
     }
 
     const selectDate = new Date(CreateReservationDto.date);
@@ -117,6 +126,7 @@ export class ReservationService {
       lastname: CreateReservationDto.lastname,
       specialRequests: CreateReservationDto.specialRequests,
       tour: tour,
+      user: user,
     });
 
     // 예약 정보 저장
@@ -131,23 +141,48 @@ export class ReservationService {
 
   // 01.예약 가능한 날짜 확인 메서드
   async isDateValid(tourId: number, reservationDate: Date): Promise<boolean> {
-    const { startDate, endDate } = await this.tourRepository
-      .createQueryBuilder('tour')
-      .select('tour.startDate', 'startDate')
-      .addSelect('tour.endDate', 'endDate')
-      .where('tour.id = :id', { id: tourId })
-      .getRawOne();
+    const tour = await this.tourRepository.findOne({
+      where: { id: tourId },
+      select: ['startDate', 'endDate'],
+    });
 
-    if (!startDate || !endDate) {
+    if (!tour) {
       throw new NotFoundException(
-        '해당하는 투어의 정보를 불러오지 못하였습니다.',
+        '해당하는 투어의 정보를 불러오지 못했습니다.',
       );
     }
 
-    console.log('startDate:', startDate);
-    console.log('endDate:', endDate);
+    const startDate = new Date(tour.startDate);
+    const endDate = new Date(tour.endDate);
 
-    return reservationDate >= startDate && reservationDate <= endDate;
+    // const { startDate, endDate } = await this.tourRepository
+    //   .createQueryBuilder('tour')
+    //   .select('tour.startDate', 'startDate')
+    //   .addSelect('tour.endDate', 'endDate')
+    //   .where('tour.id = :id', { id: tourId })
+    //   .getRawOne();
+
+    // if (!startDate || !endDate) {
+    //   throw new NotFoundException(
+    //     '해당하는 투어의 정보를 불러오지 못하였습니다.',
+    //   );
+    // }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startValidDate = new Date(today);
+    startValidDate.setDate(startValidDate.getDate() + 1); // 예약은 오늘 이후부터 가능
+    const endValidDate = new Date(endDate);
+
+    console.log('today:', today);
+    console.log('startValiDate:', startValidDate);
+    console.log('endValidDate:', endValidDate);
+
+    return (
+      reservationDate >= startValidDate &&
+      reservationDate <= endValidDate &&
+      reservationDate.getDate() >= startDate.getDate() + 1
+    );
   }
 
   // 유틸리티 메서드로 현재 시간과 취소 데드라인 비교하기

@@ -16,7 +16,12 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { UserInfo } from './userinfo.entity';
+
+
 
 @Entity()
 export class User {
@@ -39,6 +44,12 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   phoneNumber: string;
 
+
+  @OneToOne(() => UserInfo, (userInfo) => userInfo.user)
+  @JoinColumn()
+  userInfo: UserInfo;
+
+
   @OneToMany(() => Mileage, (mileage) => mileage.user)
   @JoinColumn({ name: 'MileageId', referencedColumnName: 'id' })
   mileages: Mileage;
@@ -47,12 +58,18 @@ export class User {
   @JoinColumn({ name: 'MileageHistoryId', referencedColumnName: 'id' })
   MileageHistory: MileageHistory;
 
+
   @IsString()
   @IsNotEmpty({ message: '투어타입을 입력해주세요' })
   @Column({ type: 'enum', enum: TourType })
   tourType: TourType;
 
-  //   @OneToMany(() => UserRegion, (userRegion) => userRegion.user)
+  @IsString()
+  @IsNotEmpty({ message: '투어타입을 입력해주세요' })
+  @Column({ type: 'varchar' })
+  tourType: TourType;
+
+  // @OneToMany(() => UserRegion, (userRegion) => userRegion.user)
   //   userRegions: UserRegion[];
 
   @OneToMany(() => Tour, (tour) => tour.user)
@@ -68,6 +85,10 @@ export class User {
   // User와 ChatTalk의 일대다 관계
   @OneToMany(() => ChatTalk, (chatTalk) => chatTalk.user)
   chatTalks: ChatTalk[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservations: User;
+
 
   @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;

@@ -1,67 +1,129 @@
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { RedisIoAdapter } from 'src/adapters/redis-io.adapter';
 import { ChatService } from 'src/chat/chat.service';
 
-@WebSocketGateway(4000, { namespace: 'chat' }) // 안에 port와 namespace를 속성으로 넣어줄 수 있다.
+interface User {
+  clientId: string;
+  userId: number;
+}
+
+@WebSocketGateway(4000, { namespace: 'chat' })
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
-  constructor(private readonly chatService: ChatService) {}
+
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly redisIoAdapter: RedisIoAdapter,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {
+    this.redisIoAdapter.connectToRedis();
+  }
 
   connectedClients: { [socketId: string]: boolean } = {};
   clientNickName: { [socketId: string]: string } = {};
   roomUsers: { [key: string]: string[] } = {};
+  users: User[] = [];
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    // 이미 연결된 클라이언트인지 확인
     if (this.connectedClients[client.id]) {
       client.disconnect(true);
       return;
     }
     this.connectedClients[client.id] = true;
-
+    const userId = +client.handshake.query.id;
+    this.users.push({ clientId: client.id, userId });
     console.log('New client connected');
   }
 
-  @SubscribeMessage('setnickName')
-  handleSetNickName(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() nickname: string,
-  ) {
-    // 이미 닉네임이 설정된 경우 오류 메시지 전송
-    if (Object.values(this.clientNickName).includes(nickname)) {
-      console.log(`중복된 닉네임입니다: ${nickname}`);
-      client.emit('errorMessage', '이미 사용하고 있는 닉네임입니다..');
-      return;
+  @SubscribeMessage('authenticate')
+  handleAuthentication(client: Socket, accessToken: string | string[]) {
+    try {
+      const userId = this.verifyToken(accessToken);
+      if (userId) {
+        client.emit('authenticated');
+      } else {
+        throw new WsException('사용자 인증이 실패했습니다.');
+      }
+    } catch (error) {
+      console.log(error);
+      client.emit('unauthorized', { message: '로그인이 필요합니다.' });
+      client.disconnect(true);
     }
-
-    // 중복이 없다면 닉네임을 설정
-    this.clientNickName[client.id] = nickname;
-
-    client.emit('nicknameSet', nickname);
   }
 
-  @SubscribeMessage('join')
-  async handleJoin(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() room: string,
-  ) {
+  verifyToken(token: string | string[]): number | null {
+    try {
+      if (typeof token !== 'string') {
+        throw new WsException('토큰의 형식이 잘못 되었습니다.');
+      }
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
+      });
+
+      if (!payload) {
+        throw new WsException('로그인이 필요합니다.');
+      }
+
+      const userId = payload.userId;
+      return userId;
+    } catch (error) {
+      console.log(error);
+      if (error.message === 'jwt expired') {
+        return null;
+      }
+      throw new WsException('토큰 검증 중 오류가 발생했습니다.');
+    }
+  }
+
+  @SubscribeMessage('createChatForReservation')
+  async handleCreateChatForReservation(@MessageBody() reservationId: number) {
+    // const { chatId, guideId, userId } =
+    //   await this.chatService.createChatforReservation(reservationId);
+    // // if (!guideId) {
+    // //   throw new Error('guideId를 찾을 수 없습니다.');
+    // // }
+    // this.emitChatRoomToUser(guideId, chatId.toString(), userId);
+    // this.emitChatRoomToUser(userId, chatId.toString(), guideId);
+  }
+  emitChatRoomToUser(userId: number, roomId: string, otherUserId: number) {
+    const userSocketId = this.users.find(
+      (user) => user.userId === userId,
+    )?.clientId;
+
+    if (userSocketId) {
+      this.server
+        .to(userSocketId)
+        .emit('chatRoom', { roomId, guideId: userId, userId: otherUserId });
+      this.joinRoom(userSocketId, roomId);
+    }
+  }
+
+  async joinRoom(clientId: string, room: string) {
+    const client = this.server.sockets.sockets[clientId];
     if (!client.rooms.has(room)) {
       client.join(room);
-
       await this.chatService.saveJoinedRoom(room);
-
-      if (!this.roomUsers[room]) {
-        this.roomUsers[room] = [];
-      }
+      this.updateRoomUsers(room, clientId);
     }
-    const nickname = this.clientNickName[client.id];
+  }
+
+  updateRoomUsers(room: string, clientId: string) {
+    const client = this.server.sockets.sockets[clientId];
+    const nickname =
+      this.clientNickName[clientId] ||
+      `User${Math.floor(Math.random() * 10000)}`;
 
     if (!this.roomUsers[room]) {
       this.roomUsers[room] = [];
@@ -71,45 +133,51 @@ export class ChatGateway {
       this.roomUsers[room].push(nickname);
     }
 
-    // 새로운 사용자가 채팅방에 참여한 것을 알림
     this.server.to(room).emit('userjoined', { userId: nickname, room });
-
-    // 해당 채팅방에 있는 모든 사용자에게 사용자 목록을 업데이트
     this.server
       .to(room)
       .emit('userList', { room, userList: this.roomUsers[room] });
-
-    // 모든 클라이언트에게 전체 사용자 목록 업데이트 알림을 보냄
     this.server.emit('userList', {
       room: null,
       userList: Object.keys(this.clientNickName),
     });
   }
 
-  @SubscribeMessage('exit')
-  handleExist(@ConnectedSocket() client: Socket, @MessageBody() room: string) {
-    // 방에 접속되어 있지 않은 경우 무시!!!
-    if (!client.rooms.has(room)) {
+  @SubscribeMessage('setnickName')
+  handleSetNickName(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() nickname: string,
+  ) {
+    if (Object.values(this.clientNickName).includes(nickname)) {
+      console.log(`중복된 닉네임입니다: ${nickname}`);
+      client.emit('errorMessage', '이미 사용하고 있는 닉네임입니다..');
       return;
     }
-    client.leave(room);
 
-    const index = this.roomUsers[room]?.indexOf(this.clientNickName[client.id]);
-    {
-      this.roomUsers[room].splice(index, 1);
-      this.server.to(room).emit('userLeft'),
-        { userId: this.clientNickName[client.id] };
-      // 떠난 이후 방에 남아 있는 있는 userList 에도 반영이 될테니깐
-      this.server
-        .to(room)
-        .emit('userList', { room, userList: this.roomUsers[room] });
+    this.clientNickName[client.id] = nickname;
+    client.emit('nicknameSet', nickname);
+  }
 
-      // 모든 방의 유저 목록을 업데이트하여 emit
-      this.server.emit('userList', {
-        room: null,
-        userList: Object.keys(this.connectedClients),
-      });
-    }
+  @SubscribeMessage('exit')
+  handleExist(@ConnectedSocket() client: Socket) {
+    Object.keys(client.rooms).forEach((room) => {
+      client.leave(room);
+      const index = this.roomUsers[room]?.indexOf(
+        this.clientNickName[client.id],
+      );
+      if (index !== -1) {
+        this.roomUsers[room].splice(index, 1);
+        this.server.to(room).emit('userLeft'),
+          { userId: this.clientNickName[client.id] };
+        this.server
+          .to(room)
+          .emit('userList', { room, userList: this.roomUsers[room] });
+      }
+    });
+    this.server.emit('userList', {
+      room: null,
+      userList: Object.keys(this.connectedClients),
+    });
   }
 
   @SubscribeMessage('getUserList')
@@ -117,16 +185,11 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() room: string,
   ) {
-    // 방 이름이 유효한지 확인
     if (!room || !this.roomUsers[room]) {
-      // 클라이언트에게 유효하지 않은 방을 요청했다는 메시지를 보낸다.
       client.emit('invalidRoom');
       return;
     }
-    // 해당 방에 속한 사용자 목록을 클라이언트에게 반환
     const userList = this.roomUsers[room];
-
-    // 사용자 목록이 올바르게 포함된 'userList' 이벤트를 클라이언트에게 전송
     client.emit('userList', { room, userList });
   }
 
@@ -135,12 +198,19 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { message: string; room: string },
   ) {
-    // 클라이언트가 보낸 채팅 메시지를 해당 방으로 전달하기!
+    const user = this.users.find((el) => el.clientId === client.id);
+    if (!user) {
+      throw new WsException('사용자를 찾을 수 없습니다.');
+    }
     this.server.to(data.room).emit('chatMessage', {
-      userId: this.clientNickName[client.id],
+      userId: user.userId,
       message: data.message,
       room: data.room,
     });
-    await this.chatService.saveChatMessage(data);
+    await this.chatService.saveChatMessage({
+      message: data.message,
+      room: data.room,
+      userId: user.userId,
+    });
   }
 }

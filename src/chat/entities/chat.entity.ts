@@ -6,7 +6,10 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+import { Guide } from 'src/guide/entities/guide.entity';
 
 @Entity({ name: 'chat' })
 export class Chat {
@@ -19,9 +22,15 @@ export class Chat {
   @Column({ length: 36 })
   room: string;
 
+  //guide필요
+
   @OneToMany(() => ChatTalk, (chattalk) => chattalk.chat)
   chattalk: ChatTalk[];
 
   @ManyToOne(() => User, (user) => user.chats)
   user: User;
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  participants: (User | Guide)[];
 }

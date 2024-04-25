@@ -13,12 +13,11 @@ import {
 import { ReservationService } from '../reservation/reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { TourService } from '../tour/tour.service';
-import { validate } from 'class-validator';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
-import { AuthGuard } from '@nestjs/passport';
 import { UserInfo } from 'src/utils/userinfo.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('/reservations')
@@ -36,9 +35,9 @@ export class ReservationController {
   ) {
     // 사용자 ID 가져오기
     const userId = user.id;
+    console.log('유저아이디', userId);
 
     // 주어진 투어 ID에 해당하는 투어가 있는지 확인
-
     const tour = await this.TourService.findOne(+tourId);
     console.log('투어정보', tour);
     if (!tour) {

@@ -23,9 +23,9 @@ export class ChatTalk {
   createdAt: Date;
 
   @ManyToOne(() => Chat, (chat) => chat.chattalk)
-  @JoinColumn({ name: 'chatId', referencedColumnName: 'id' })
   chat: Chat;
 
   @ManyToOne(() => User, (user) => user.chatTalks)
+  @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: User;
 }
