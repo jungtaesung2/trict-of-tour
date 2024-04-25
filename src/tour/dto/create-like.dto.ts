@@ -5,7 +5,7 @@ export class CreateLikeDto {
   @IsNumber()
   tourId: number;
 
-  @IsNotEmpty({ message: '유저 ID를 입력해주세요' })
-  @IsNumber()
-  userId: number;
+  // @IsNotEmpty({ message: '유저 ID를 입력해주세요' })
+  // @IsNumber()
+  // userId: number;
 }
