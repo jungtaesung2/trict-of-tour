@@ -5,6 +5,8 @@ import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
 import { TourLike } from 'src/tour/entities/like.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
 import { TourType } from 'src/tour/types/tourtypes.enum';
+import { OneToMany, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn } from 'typeorm';
+import { Review } from 'src/reviews/entities/review.entity';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatTalk } from 'src/chat/entities/chattalk.entity';
 import {
@@ -53,6 +55,11 @@ export class User {
   @OneToMany(() => MileageHistory, (mileageHistory) => mileageHistory.user)
   @JoinColumn({ name: 'MileageHistoryId', referencedColumnName: 'id' })
   MileageHistory: MileageHistory;
+
+  @OneToMany(() => Review, reviews => reviews.user)
+  @JoinColumn({ name: 'reviewId', referencedColumnName: 'id' })
+  review : Review;
+
 
   @IsString()
   @IsNotEmpty({ message: '투어타입을 입력해주세요' })
