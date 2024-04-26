@@ -86,6 +86,4 @@ export class Reservation {
   
   @OneToMany(() => Review, (reviews) => reviews.reservations)
   reviews: Review;
-  @ManyToMany(() => Mileage, mileages => mileages.reservations)
-  Mileage: Mileage[]; 
 }

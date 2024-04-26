@@ -36,6 +36,7 @@ export class ReviewsService {
         tour : {id : tourId},
         userId
       });
+      // 마일리지 추가 로직 필요(userId)
         const createReview = await this.reviewRepository.save(newReview)
         return {review:createReview}
     }
@@ -48,7 +49,7 @@ export class ReviewsService {
     async findOneByTourId(tourId: number): Promise<Review[]> {
       return await this.reviewRepository.find({ where: { tour: { id: tourId } } });
     }
-    // 별점
+
     async Rating(tourId: number): Promise<number> {
       const review = await this.reviewRepository.find({ where: { tour: { id: tourId } } });
       
