@@ -13,13 +13,13 @@ import {
 import { ReservationService } from '../reservation/reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { TourService } from '../tour/tour.service';
-import { validate } from 'class-validator';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
-//   import { BoardGuard } from 'src/board/guards/board.guard';
-//   import { JwtAuthGuard } from 'src/user/guards/jwt.guard';
+import { UserInfo } from 'src/utils/userinfo.decorator';
+import { User } from 'src/user/entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
-//   @UseGuards(JwtAuthGuard, BoardGuard)
+@UseGuards(AuthGuard('jwt'))
 @Controller('/reservations')
 export class ReservationController {
   constructor(
@@ -31,13 +31,13 @@ export class ReservationController {
   async CreateReservation(
     @Param('tourId') tourId: number,
     @Body() CreateReservationDto: CreateReservationDto,
-    @Req() req: any,
+    @UserInfo() user: User,
   ) {
     // 사용자 ID 가져오기
-    const userId = req.user;
+    const userId = user.id;
+    console.log('유저아이디', userId);
 
     // 주어진 투어 ID에 해당하는 투어가 있는지 확인
-
     const tour = await this.TourService.findOne(+tourId);
     console.log('투어정보', tour);
     if (!tour) {
@@ -65,10 +65,10 @@ export class ReservationController {
   async editReservaition(
     @Param('reservationId') reservationId: number,
     @Body() cancelReservationDto: CancelReservationDto,
-    @Req() req: any,
+    @UserInfo() user: User,
   ) {
     try {
-      const userId = req.user;
+      const userId = user.id;
 
       const canCancel =
         await this.ReservationService.canCancelReservation(reservationId);

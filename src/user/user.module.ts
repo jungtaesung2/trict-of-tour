@@ -10,10 +10,21 @@ import { UserInfo } from './entities/userinfo.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
 import { Review } from 'src/reviews/entities/review.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { ChatTalk } from 'src/chat/entities/chattalk.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserInfo, Reservation, Tour, Mileage, Review]), // 이건 TypeORM 강의 시간에 배웠죠?
+    TypeOrmModule.forFeature([
+      User,
+      UserInfo,
+      Reservation,
+      Tour,
+      Mileage,
+      Chat,
+      ChatTalk,
+      Review,
+    ]), // 이건 TypeORM 강의 시간에 배웠죠?
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         // .env 파일에 JWT_SECRET_KEY라는 키로 비밀키를 저장해두고 사용합니다.
