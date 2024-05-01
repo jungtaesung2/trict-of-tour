@@ -29,7 +29,6 @@ import { Guide } from './guide/entities/guide.entity';
 import { ChatGateway } from './gateway/chat.gateway';
 import { ReservationGateWay } from './gateway/reservation.gateway';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
-import { Apple } from './reservation/entities/apple.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat/chat.service';
 import { TourService } from './tour/tour.service';
@@ -57,7 +56,6 @@ const typeOrmModuleOptions = {
       Chat,
       ChatTalk,
       Guide,
-      Apple,
     ],
 
     synchronize: configService.get('DB_SYNC'),

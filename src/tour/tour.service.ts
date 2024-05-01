@@ -354,15 +354,15 @@ export class TourService {
     }
   }
 
-  async createChatForTour(tourId: number) {
+  async createChatForTour(tourId: number, userId: number) {
     const tour = await this.tourRepository.findOne({
       where: { id: tourId },
-      relations: ['chats'],
+      relations: ['guide'],
     });
     if (!tour) {
       throw new NotFoundException('투어를 찾을 수 없습니다.');
     }
-    const chatId = await this.chatService.createChatForTour(tour);
-    return chatId;
+    const chat = await this.chatService.createChatForTour(tour, userId);
+    return chat;
   }
 }

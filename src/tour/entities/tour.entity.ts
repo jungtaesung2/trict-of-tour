@@ -105,9 +105,9 @@ export class Tour {
   @ManyToOne(() => Region, (region) => region.tours, { onDelete: 'CASCADE' })
   region: Region;
 
-  //   @JoinColumn({ name: 'guideId' })
-  //   @ManyToOne(() => Guide, (guide) => guide.tour, { onDelete: 'CASCADE' })
-  //   guide: Guide;
+  @JoinColumn({ name: 'guideId' })
+  @ManyToOne(() => Guide, (guide) => guide.tour, { onDelete: 'CASCADE' })
+  guide: Guide;
 
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;

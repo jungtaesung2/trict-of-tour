@@ -8,6 +8,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
+  CreateDateColumn,
 } from 'typeorm';
 import { Guide } from 'src/guide/entities/guide.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
@@ -32,6 +33,6 @@ export class Chat {
   @ManyToOne(() => Tour, (tour) => tour.chats)
   tour: Tour;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
 }

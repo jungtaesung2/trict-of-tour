@@ -1,5 +1,6 @@
 // guide.entity.ts
 import { Chat } from 'src/chat/entities/chat.entity';
+import { ChatTalk } from 'src/chat/entities/chattalk.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
 import {
@@ -35,6 +36,9 @@ export class Guide {
   @OneToMany(() => Chat, (chat) => chat.guide)
   chats: Chat;
 
-  // @OneToMany(() => Tour, (tour) => tour.guide)
-  // tour: Tour[];
+  @OneToMany(() => ChatTalk, (chatTalk) => chatTalk.guide)
+  chatTalks: ChatTalk[];
+
+  @OneToMany(() => Tour, (tour) => tour.guide)
+  tour: Tour[];
 }
