@@ -17,7 +17,7 @@ import { Tour } from './entities/tour.entity';
 import { S3 } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 import { TourType } from './types/tourtypes.enum';
-
+import { ChatService } from 'src/chat/chat.service';
 
 @Injectable()
 export class TourService {
@@ -34,6 +34,7 @@ export class TourService {
     // @InjectRepository(TourLike)
     // private readonly tourLikeRepository: Repository<TourLike>,
     private readonly configService: ConfigService,
+    private readonly chatService: ChatService,
   ) {}
   async createTour(createTourDto: CreateTourDto, url: string, fileKey: string) {
     const {
@@ -351,5 +352,17 @@ export class TourService {
       await queryRunner.release();
       throw err;
     }
+  }
+
+  async createChatForTour(tourId: number) {
+    const tour = await this.tourRepository.findOne({
+      where: { id: tourId },
+      relations: ['chats'],
+    });
+    if (!tour) {
+      throw new NotFoundException('투어를 찾을 수 없습니다.');
+    }
+    const chatId = await this.chatService.createChatForTour(tour);
+    return chatId;
   }
 }

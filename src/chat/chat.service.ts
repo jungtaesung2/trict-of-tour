@@ -16,10 +16,6 @@ export class ChatService {
     private chatTalkRepository: Repository<ChatTalk>,
     @InjectRepository(User)
     private userRepostiory: Repository<User>,
-    @InjectRepository(Reservation)
-    private reservationRepostiory: Repository<Reservation>,
-    @InjectRepository(Tour)
-    private readonly tourRepository: Repository<Tour>,
   ) {}
 
   async getChatHistory(userId: number, chatId: number) {
@@ -45,40 +41,38 @@ export class ChatService {
     return chat;
   }
 
-  async createChatforReservation(reservationId: number) {
+  async createChatForTour(tour: Tour): Promise<Chat> {
     try {
-      const reservation = await this.reservationRepostiory.findOne({
-        where: { id: reservationId },
-        relations: ['guest', 'tour'],
-      });
-      if (!reservation) {
-        throw new NotFoundException('예약을 찾을 수 없습니다.');
-      }
-
       const chat = new Chat();
-      chat.room = `reservation_${reservation.id}`;
-      chat.participants = [reservation.user];
-      // reservation.tour.guide
-
-      await this.chatRepository.save(chat);
-      return {
-        chatId: chat.id,
-        // guideId: reservation.tour.guide.id,
-        userId: reservation.user.id,
-      };
+      chat.tour = tour;
+      return await this.chatRepository.save(chat);
     } catch (error) {
-      console.error('채팅방 만들기 실패', error);
+      throw new NotFoundException('채팅을 생성할 수 없습니다.');
     }
   }
 
-  async saveJoinedRoom(room: string) {
-    try {
-      const chatRoom = new Chat();
-      chatRoom.room = room;
+  async getParticipantsByChatId(chatId: number) {
+    const chat = await this.chatRepository.findOne({
+      where: { id: chatId },
+      relations: ['user', 'guide'],
+    });
+    if (!chat) {
+      throw new NotFoundException('채팅을 찾을 수 없습니다.');
+    }
 
-      await this.chatRepository.save(chatRoom);
+    return {
+      userId: chat.user.id,
+      guideId: chat.guide.id,
+    };
+  }
+
+  async saveChatRoom(room: number) {
+    try {
+      const chat = new Chat();
+      chat.id = room;
+      await this.chatRepository.save(chat);
     } catch (error) {
-      console.error('Error saving joined room:', error);
+      console.error('Error saving chat room:', error);
     }
   }
 
@@ -88,9 +82,6 @@ export class ChatService {
     userId: number;
   }) {
     try {
-      // const user = req.user;
-
-      // 입장한 소켓 룸이 일치하는지
       const chatting = await this.chatRepository.findOne({
         where: { room: data.room },
       });
@@ -98,14 +89,6 @@ export class ChatService {
         throw new NotFoundException('해당 ID의 채팅방을 찾을 수 없습니다.');
       }
 
-      // const chatMessage = new ChatTalk();
-
-      // chatMessage.content = data.message;
-      // chatMessage.room = data.room;
-      // chatMessage.user = { id: data.userId };
-      //이자리에 user 엔티티 들어와야함
-
-      //편리해서? 위에 거 하기귀찮으니까
       const chattalk = await this.chatTalkRepository.create({
         content: data.message,
         room: data.room,

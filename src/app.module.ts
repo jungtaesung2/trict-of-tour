@@ -31,6 +31,8 @@ import { ReservationGateWay } from './gateway/reservation.gateway';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
 import { Apple } from './reservation/entities/apple.entity';
 import { JwtService } from '@nestjs/jwt';
+import { ChatService } from './chat/chat.service';
+import { TourService } from './tour/tour.service';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -98,6 +100,8 @@ const typeOrmModuleOptions = {
     ReservationGateWay,
     RedisIoAdapter,
     JwtService,
+    ChatService,
+    TourService,
   ],
 })
 export class AppModule {}

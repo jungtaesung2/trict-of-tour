@@ -1,4 +1,5 @@
 // guide.entity.ts
+import { Chat } from 'src/chat/entities/chat.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
 import {
@@ -30,6 +31,9 @@ export class Guide {
 
   @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
+
+  @OneToMany(() => Chat, (chat) => chat.guide)
+  chats: Chat;
 
   // @OneToMany(() => Tour, (tour) => tour.guide)
   // tour: Tour[];

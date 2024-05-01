@@ -13,6 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatTalk } from 'src/chat/entities/chattalk.entity';
+import { ChatService } from 'src/chat/chat.service';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { ChatTalk } from 'src/chat/entities/chattalk.entity';
     TourService,
     ReservationSchedulerService,
     ReservationGateWay,
+    ChatService,
   ],
-  exports: [TypeOrmModule, ReservationService, ReservationGateWay],
+  exports: [TypeOrmModule, ReservationService, ReservationGateWay, ChatService],
 })
 export class ReservationModule {}
