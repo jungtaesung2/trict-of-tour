@@ -17,6 +17,7 @@ import { Region } from './region.entity';
 import { User } from 'src/user/entities/user.entity';
 import { TourLike } from './like.entity';
 import { Guide } from 'src/guide/entities/guide.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
 
 @Entity({ name: 'tours' })
 export class Tour {
@@ -104,9 +105,9 @@ export class Tour {
   @ManyToOne(() => Region, (region) => region.tours, { onDelete: 'CASCADE' })
   region: Region;
 
-  //   @JoinColumn({ name: 'guideId' })
-  //   @ManyToOne(() => Guide, (guide) => guide.tour, { onDelete: 'CASCADE' })
-  //   guide: Guide;
+  @JoinColumn({ name: 'guideId' })
+  @ManyToOne(() => Guide, (guide) => guide.tour, { onDelete: 'CASCADE' })
+  guide: Guide;
 
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;
@@ -117,6 +118,9 @@ export class Tour {
   @JoinColumn({ name: 'userId' })
   @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
   user: User;
+
+  @OneToMany(() => Chat, (chat) => chat.tour)
+  chats: Chat[];
 
   @IsString()
   @Column({ type: 'varchar', nullable: true })

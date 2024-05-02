@@ -8,29 +8,31 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
+  CreateDateColumn,
 } from 'typeorm';
 import { Guide } from 'src/guide/entities/guide.entity';
+import { Tour } from 'src/tour/entities/tour.entity';
 
 @Entity({ name: 'chat' })
 export class Chat {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 18 })
-  name: string;
-
   @Column({ length: 36 })
   room: string;
 
-  //guide필요
-
   @OneToMany(() => ChatTalk, (chattalk) => chattalk.chat)
-  chattalk: ChatTalk[];
+  chatTalks: ChatTalk[];
 
   @ManyToOne(() => User, (user) => user.chats)
   user: User;
 
-  @ManyToMany(() => User)
-  @JoinTable()
-  participants: (User | Guide)[];
+  @ManyToOne(() => Guide, (guide) => guide.chats)
+  guide: Guide;
+
+  @ManyToOne(() => Tour, (tour) => tour.chats)
+  tour: Tour;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

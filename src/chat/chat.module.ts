@@ -9,6 +9,7 @@ import { User } from '../user/entities/user.entity';
 import { UserInfo } from 'src/user/entities/userinfo.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
+import { Guide } from 'src/guide/entities/guide.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { Tour } from 'src/tour/entities/tour.entity';
       UserInfo,
       Reservation,
       Tour,
+      Guide,
     ]),
   ],
   providers: [ChatService],

@@ -56,10 +56,14 @@ export class User {
   @JoinColumn({ name: 'MileageHistoryId', referencedColumnName: 'id' })
   MileageHistory: MileageHistory;
 
+  // @IsString()
+  // @IsNotEmpty({ message: '투어타입을 입력해주세요' })
+  // @Column({ type: 'enum', enum: TourType })
+  // tourType: TourType;
+
   @OneToMany(() => Review, reviews => reviews.user)
   @JoinColumn({ name: 'reviewId', referencedColumnName: 'id' })
   review : Review;
-
 
   @IsString()
   @IsNotEmpty({ message: '투어타입을 입력해주세요' })
