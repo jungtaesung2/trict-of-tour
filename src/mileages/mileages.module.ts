@@ -31,5 +31,6 @@ import { ChatService } from 'src/chat/chat.service';
   controllers: [MileagesController],
   providers: [MileagesService, ReservationService, TourService, ChatService],
   exports: [TypeOrmModule, MileagesService],
+
 })
 export class MileagesModule {}

@@ -9,6 +9,7 @@ import { Mileage } from 'src/mileages/entities/mileages.entity';
 import { UserInfo } from './entities/userinfo.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatTalk } from 'src/chat/entities/chattalk.entity';
 
@@ -22,6 +23,7 @@ import { ChatTalk } from 'src/chat/entities/chattalk.entity';
       Mileage,
       Chat,
       ChatTalk,
+      Review,
     ]), // 이건 TypeORM 강의 시간에 배웠죠?
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({

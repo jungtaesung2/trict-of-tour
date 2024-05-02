@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { MileagesService } from '../mileages/mileages.service';
 import { CreateMileageDto } from '../mileages/dto/create-mileages.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { UserInfo } from 'src/utils/userinfo.decorator';
 // import { AuthGuard } from '../common/auth.guard';
 
 @Controller('mileages')
@@ -12,24 +14,18 @@ export class MileagesController {
         return this.mileageService.chargeMileage(userId, mileageAmount);
     }
 
-    // 지급
-    @Patch('/:userId')
-    // @UseGuards(AuthGuard())
-    async getMileage(@Param('userId') userId: number, mileageId:number, @Body() createMileageDto: CreateMileageDto) {
-        return this.mileageService.create(userId, mileageId, createMileageDto);
-    }
-
     // 마일리지 조회
-    @Get('/:mileageId')
-    // @UseGuards(AuthGuard())
-    async findmyMileage(@Param('mileageId') mileageId:number, userId : number) {
-        return this.mileageService.findmyMileage(mileageId, userId);
+    @Get()
+    @UseGuards(AuthGuard('jwt'))
+    async findmyMileage(@UserInfo() user) {
+        return this.mileageService.findmyMileage(user.id)
     }
 
     // 마일리지 상세정보
-    @Get('/:mileageId')
-    // @UseGuards(AuthGuard())
-    async findOne(@Param('mileageId') mileageId: number, userId : number) {
-        return this.mileageService.findOne(mileageId, userId);
+    @Get('/history')
+    @UseGuards(AuthGuard('jwt'))
+    async findmyMileageHistory(@UserInfo() user) {
+        console.log(user)
+        return this.mileageService.findmyMileageHistory(user.id);
     }
 }
