@@ -21,25 +21,13 @@ export class ChatService {
   ) {}
 
   async getChatHistory(userId: number, chatId: number) {
-    const user = await this.userRepostiory.findOne({
-      where: { id: userId },
-      relations: ['chats'],
-    });
-    if (!user) {
-      throw new NotFoundException(
-        '해당 ID의 유저의 채팅 정보를 찾을 수 없습니다.',
-      );
-    }
-
-    const chat = this.userRepostiory.findOne({
-      where: { id: chatId },
+    const chat = await this.chatRepository.findOne({
+      where: { id: chatId, user: { id: userId } },
       relations: ['chatTalks'],
     });
-
     if (!chat) {
       throw new NotFoundException('사용자의 채팅 기록을 찾을 수 없습니다.');
     }
-
     return chat;
   }
 

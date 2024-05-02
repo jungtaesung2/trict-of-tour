@@ -22,7 +22,7 @@ export class Chat {
   room: string;
 
   @OneToMany(() => ChatTalk, (chattalk) => chattalk.chat)
-  chattalk: ChatTalk[];
+  chatTalks: ChatTalk[];
 
   @ManyToOne(() => User, (user) => user.chats)
   user: User;

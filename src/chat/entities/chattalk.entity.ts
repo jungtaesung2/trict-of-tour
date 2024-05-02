@@ -24,7 +24,7 @@ export class ChatTalk {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => Chat, (chat) => chat.chattalk)
+  @ManyToOne(() => Chat, (chat) => chat.chatTalks)
   chat: Chat;
 
   @ManyToOne(() => User, (user) => user.chatTalks)
