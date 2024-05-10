@@ -12,5 +12,6 @@ import { Guide } from 'src/guide/entities/guide.entity';
   imports: [TypeOrmModule.forFeature([Tour, Region, User, TourLike, Guide])],
   controllers: [TourController],
   providers: [TourService],
+  exports: [TourService],
 })
 export class TourModule {}

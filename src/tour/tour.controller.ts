@@ -24,6 +24,7 @@ import { User } from 'src/user/entities/user.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserInfo } from 'src/utils/userinfo.decorator';
+import { Guide } from 'src/guide/entities/guide.entity';
 
 @Controller('tour')
 export class TourController {
@@ -33,9 +34,12 @@ export class TourController {
   ) {}
 
   // configService 써보자...
+
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async create(
+    @UserInfo() guide: Guide,
     @Body() createTourDto: CreateTourDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
@@ -62,6 +66,7 @@ export class TourController {
         const fileKey = key;
 
         const tour = await this.tourService.createTour(
+          guide.id,
           createTourDto,
           url,
           fileKey,
@@ -129,11 +134,16 @@ export class TourController {
   }
 
   // 투어 수정 + 가이드 추가 해야됨
+  @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTourDto: UpdateTourDto) {
+  async update(
+    @UserInfo() guide: Guide,
+    @Param('id') id: string,
+    @Body() updateTourDto: UpdateTourDto,
+  ) {
     const data = await this.tourService.updateTour(
+      guide.id,
       +id,
-
       updateTourDto,
     );
 
@@ -144,9 +154,10 @@ export class TourController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const data = await this.tourService.removeTour(+id);
+  async remove(@UserInfo() guide: Guide, @Param('id') id: string) {
+    const data = await this.tourService.removeTour(guide.id, +id);
 
     return {
       statusCode: HttpStatus.OK,
@@ -163,7 +174,7 @@ export class TourController {
     @Body() createLikeDto: CreateLikeDto,
   ) {
     try {
-      const data = await this.tourService.createLike(user, createLikeDto);
+      const data = await this.tourService.createLike(user.id, createLikeDto);
 
       return {
         statusCode: HttpStatus.OK,

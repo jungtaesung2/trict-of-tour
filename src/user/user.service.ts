@@ -86,7 +86,7 @@ export class UserService {
   }
 
   async getToken(userId: number) {
-    const payload = { id: userId };
+    const payload = { type: 'user', id: userId };
     const accessToken = this.jwtservice.sign(payload);
     return accessToken;
   }

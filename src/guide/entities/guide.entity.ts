@@ -1,6 +1,8 @@
 // guide.entity.ts
+import { IsNotEmpty, IsString } from 'class-validator';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
+import { TourType } from 'src/tour/types/tourtypes.enum';
 import {
   Entity,
   Column,
@@ -25,12 +27,20 @@ export class Guide {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
+  @IsString()
+  @IsNotEmpty({ message: '투어타입을 입력해주세요' })
+  @Column({ type: 'varchar' })
+  tourType: TourType;
+
+  @Column({ type: 'varchar', length: 255 })
+  fileUrl: string;
+
   @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 
-  // @OneToMany(() => Tour, (tour) => tour.guide)
-  // tour: Tour[];
+  @OneToMany(() => Tour, (tour) => tour.guide)
+  tour: Tour[];
 }

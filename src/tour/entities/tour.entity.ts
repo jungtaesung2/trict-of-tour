@@ -104,9 +104,9 @@ export class Tour {
   @ManyToOne(() => Region, (region) => region.tours, { onDelete: 'CASCADE' })
   region: Region;
 
-  //   @JoinColumn({ name: 'guideId' })
-  //   @ManyToOne(() => Guide, (guide) => guide.tour, { onDelete: 'CASCADE' })
-  //   guide: Guide;
+  @JoinColumn({ name: 'guideId' })
+  @ManyToOne(() => Guide, (guide) => guide.tour, { onDelete: 'CASCADE' })
+  guide: Guide;
 
   // @OneToOne(() => Like, (like) => like.tour)
   // like: Like;
@@ -114,9 +114,9 @@ export class Tour {
   @OneToMany(() => TourLike, (tourLikes) => tourLikes.tour)
   tourLikes: TourLike[];
 
-  @JoinColumn({ name: 'userId' })
-  @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
-  user: User;
+  // @JoinColumn({ name: 'userId' })
+  // @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
+  // user: User;
 
   @IsString()
   @Column({ type: 'varchar', nullable: true })
