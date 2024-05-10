@@ -115,9 +115,9 @@ export class Tour {
   @OneToMany(() => TourLike, (tourLikes) => tourLikes.tour)
   tourLikes: TourLike[];
 
-  @JoinColumn({ name: 'userId' })
-  @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
-  user: User;
+  // @JoinColumn({ name: 'userId' })
+  // @ManyToOne(() => User, (user) => user.tours, { onDelete: 'CASCADE' })
+  // user: User;
 
   @OneToMany(() => Chat, (chat) => chat.tour)
   chats: Chat[];

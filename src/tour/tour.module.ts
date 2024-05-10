@@ -25,6 +25,11 @@ import { ChatModule } from 'src/chat/chat.module';
     ]),
   ],
   controllers: [TourController],
+<<<<<<< HEAD
+  providers: [TourService],
+  exports: [TourService],
+=======
   providers: [TourService, ChatService],
+>>>>>>> d8391713920d2fe3095bb052d1497ed655402393
 })
 export class TourModule {}

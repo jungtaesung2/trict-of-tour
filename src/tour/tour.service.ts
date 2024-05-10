@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
@@ -17,7 +18,10 @@ import { Tour } from './entities/tour.entity';
 import { S3 } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 import { TourType } from './types/tourtypes.enum';
+<<<<<<< HEAD
+=======
 import { ChatService } from 'src/chat/chat.service';
+>>>>>>> d8391713920d2fe3095bb052d1497ed655402393
 
 @Injectable()
 export class TourService {
@@ -25,8 +29,8 @@ export class TourService {
     private readonly dataSource: DataSource,
     @InjectRepository(Tour)
     private readonly tourRepository: Repository<Tour>,
-    // @InjectRepository(Guide)
-    // private readonly guideRepository: Repository<Guide>,
+    @InjectRepository(Guide)
+    private readonly guideRepository: Repository<Guide>,
     @InjectRepository(Region)
     private readonly regionRepository: Repository<Region>,
     @InjectRepository(User)
@@ -36,7 +40,12 @@ export class TourService {
     private readonly configService: ConfigService,
     private readonly chatService: ChatService,
   ) {}
-  async createTour(createTourDto: CreateTourDto, url: string, fileKey: string) {
+  async createTour(
+    guideId: number,
+    createTourDto: CreateTourDto,
+    url: string,
+    fileKey: string,
+  ) {
     const {
       title,
       startDate,
@@ -50,13 +59,13 @@ export class TourService {
       regionId,
     } = createTourDto;
 
-    // const guide = await this.guideRepository.findOne({
-    //   where: { id: guideId },
-    // });
+    const guide = await this.guideRepository.findOne({
+      where: { id: guideId },
+    });
 
-    // if (!guide) {
-    //   throw new BadRequestException('가이드가 존재하지 않습니다.');
-    // }
+    if (!guide) {
+      throw new BadRequestException('가이드가 존재하지 않습니다.');
+    }
 
     // 날짜 설정
     const pattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -126,6 +135,7 @@ export class TourService {
       longitude,
       region: { id: regionId },
       fileKey,
+      guide: guide,
     });
     return tour;
   }
@@ -216,13 +226,13 @@ export class TourService {
   }
 
   // 투어 수정 guideId: number
-  async updateTour(id: number, updateTourDto: UpdateTourDto) {
+  async updateTour(guideId: number, id: number, updateTourDto: UpdateTourDto) {
     const { title, image } = updateTourDto;
 
-    // const guide = await this.guideRepository.findOneBy({ id: guideId });
-    // if(!guide){
-    //   throw new NotFoundException('가이드가 아닙니다. 수정할 권한이 없습니다.')
-    // }
+    const guide = await this.guideRepository.findOneBy({ id: guideId });
+    if (!guide) {
+      throw new NotFoundException('가이드가 아닙니다. 수정할 권한이 없습니다.');
+    }
 
     const tour = await this.tourRepository.findOneBy({ id });
 
@@ -239,7 +249,12 @@ export class TourService {
   }
 
   // 투어 삭제
-  async removeTour(id: number) {
+  async removeTour(guideId: number, id: number) {
+    const guide = await this.guideRepository.findOneBy({ id: guideId });
+    if (!guide) {
+      throw new NotFoundException('가이드가 아닙니다. 삭제할 권한이 없습니다.');
+    }
+
     // 투어 확인
     const findTour = await this.tourRepository.findOneBy({ id });
     if (!findTour) {
@@ -260,22 +275,18 @@ export class TourService {
       await s3.deleteObject(deleteParams).promise();
     }
 
-    // 가이드 확인
-    //   if (tour.guideId !== guideId) {
-    //     throw new BadRequestException('삭제할 권한이 없습니다.');
-    //   }
-
     await this.tourRepository.delete({ id });
   }
 
   // 투어 좋아요 기능  // 좋아요 숫자가 보이게 해야한다.(등록된 투어에) 인기순으로 나열.
-  async createLike(user: User, { tourId }: CreateLikeDto) {
+  async createLike(userId: number, { tourId }: CreateLikeDto) {
     const queryRunner = this.dataSource.createQueryRunner();
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       // 투어가 존재하는지 확인
+      console.log(tourId);
       const tour = await queryRunner.manager.findOne(Tour, {
         where: { id: tourId },
       });
@@ -286,13 +297,13 @@ export class TourService {
 
       // 사용자가 이미 해당 투어를 좋아요 했는지 확인
       const existingLike = await queryRunner.manager.findOne(TourLike, {
-        where: { tour: { id: tourId }, user: { id: user.id } },
+        where: { tour: { id: tourId }, user: { id: userId } },
       });
       // 투어에 좋아요가 없다면 좋아요 생성
       if (!existingLike) {
         await queryRunner.manager.save(TourLike, {
           tour: { id: tourId },
-          user: user,
+          user: { id: userId },
         });
 
         // 좋아요 수 증가

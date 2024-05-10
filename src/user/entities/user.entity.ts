@@ -62,8 +62,8 @@ export class User {
   // @OneToMany(() => UserRegion, (userRegion) => userRegion.user)
   //   userRegions: UserRegion[];
 
-  @OneToMany(() => Tour, (tour) => tour.user)
-  tours: Tour[];
+  // @OneToMany(() => Tour, (tour) => tour.user)
+  // tours: Tour[];
 
   @OneToMany(() => TourLike, (tourLike) => tourLike.user)
   tourLikes: TourLike[];

@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import { GuideModule } from 'src/guide/guide.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { JwtStrategy } from './jwt.strategy';
       inject: [ConfigService],
     }),
     UserModule,
+    GuideModule,
   ],
   providers: [JwtStrategy, JwtService],
 })
