@@ -16,6 +16,8 @@ import { ChatTalk } from 'src/chat/entities/chattalk.entity';
 import { MileagesService } from 'src/mileages/mileages.service';
 import { MileageHistory } from 'src/mileages/entities/mileageHistory.entity';
 import { Mileage } from 'src/mileages/entities/mileages.entity';
+import { ChatService } from 'src/chat/chat.service';
+
 
 @Module({
   imports: [
@@ -29,8 +31,9 @@ import { Mileage } from 'src/mileages/entities/mileages.entity';
     TourService,
     ReservationSchedulerService,
     ReservationGateWay,
-    MileagesService
+    MileagesService,
+    ChatService,
   ],
-  exports: [TypeOrmModule, ReservationService, ReservationGateWay],
+  exports: [TypeOrmModule, ReservationService, ReservationGateWay, ChatService],
 })
 export class ReservationModule {}

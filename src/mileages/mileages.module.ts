@@ -11,12 +11,29 @@ import { Tour } from 'src/tour/entities/tour.entity';
 import { TourService } from 'src/tour/tour.service';
 import { Region } from 'src/tour/entities/region.entity';
 import { UserInfo } from '../user/entities/userinfo.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { ChatTalk } from 'src/chat/entities/chattalk.entity';
+import { ChatService } from 'src/chat/chat.service';
 import { MileageHistory } from './entities/mileageHistory.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Mileage, Reservation, User, Tour, Region, UserInfo, MileageHistory])],
-    controllers: [MileagesController],
-    providers: [MileagesService, ReservationService, TourService],
-    exports : [MileagesService]
+
+  imports: [
+    TypeOrmModule.forFeature([
+      Mileage,
+      MileageHistory,
+      Reservation,
+      User,
+      Tour,
+      Region,
+      UserInfo,
+      Chat,
+      ChatTalk,
+    ]),
+  ],
+  controllers: [MileagesController],
+  providers: [MileagesService, ReservationService, TourService, ChatService],
+  exports: [TypeOrmModule, MileagesService],
+
 })
 export class MileagesModule {}

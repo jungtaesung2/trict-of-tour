@@ -6,7 +6,7 @@ import { UserInfo } from 'src/utils/userinfo.decorator';
 import { User } from 'src/user/entities/user.entity';
 
 @UseGuards(AuthGuard('jwt'))
-@Controller('/chathistory')
+@Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
   @Get(':chatId')
