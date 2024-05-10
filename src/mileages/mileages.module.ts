@@ -17,6 +17,6 @@ import { MileageHistory } from './entities/mileageHistory.entity';
     imports: [TypeOrmModule.forFeature([Mileage, Reservation, User, Tour, Region, UserInfo, MileageHistory])],
     controllers: [MileagesController],
     providers: [MileagesService, ReservationService, TourService],
-    exports : [TypeOrmModule, MileagesService]
+    exports : [MileagesService]
 })
 export class MileagesModule {}

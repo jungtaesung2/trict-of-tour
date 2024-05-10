@@ -24,8 +24,8 @@ async function bootstrap() {
   // 정적 파일을 제공하기 위한 Express 미들웨어 추가
   expressApp.use(express.static(join(__dirname, '..', 'client')));
 
-  await app.listen(3312); // Main application listens on port 3312
-  console.log('Main application is running on port 3312');
+  await app.listen(3306); // Main application listens on port 3312
+  console.log('Main application is running on port 3306');
 }
 
 bootstrap();

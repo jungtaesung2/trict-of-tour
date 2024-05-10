@@ -11,6 +11,7 @@ import { Tour } from '../tour/entities/tour.entity';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { Status } from './types/status.type';
 import { User } from 'src/user/entities/user.entity';
+import { MileagesService } from 'src/mileages/mileages.service';
 
 @Injectable()
 export class ReservationService {
@@ -21,6 +22,7 @@ export class ReservationService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Reservation)
     private readonly reservationRepository: Repository<Reservation>,
+    private readonly mileageService: MileagesService
   ) {}
 
   // 02. 예약 작성 메서드
@@ -131,11 +133,12 @@ export class ReservationService {
 
     // 예약 정보 저장
     const createdReservation = await queryRunner.manager.save(newReservation);
-
+    
+    //마일리지 사용기능
+    await this.mileageService.useMileage(userId, paymentAmount, `reservationId:${createdReservation.id} 예약 생성`);
     return {
       message: '예약이 성공적으로 완료되었습니다.',
       reservation: createdReservation,
-      // 투어에 대한 간단한 정보들 투어이미지, 투어이름, 투어타입, 투어지역, 가격만 나오게?
     };
   }
 
@@ -177,11 +180,11 @@ export class ReservationService {
     console.log('today:', today);
     console.log('startValiDate:', startValidDate);
     console.log('endValidDate:', endValidDate);
-
+    console.log(reservationDate)
     return (
       reservationDate >= startValidDate &&
-      reservationDate <= endValidDate &&
-      reservationDate.getDate() >= startDate.getDate() + 1
+      reservationDate <= endValidDate 
+      // reservationDate.getDate() >= startDate.getDate() + 1
     );
   }
 
@@ -234,7 +237,19 @@ export class ReservationService {
       if (reservation.status === Status.CANCEL) {
         throw new BadRequestException('이미 취소된 예약입니다.');
       }
+      const mileageToDeduct = await this.calculateMileageToDeduct(reservation);
 
+    // 사용자의 마일리지를 삭감
+    await this.mileageService.deductMileage(userId, mileageToDeduct, `reservationId:${reservation.id} 예약 취소`);
+
+    // 예약 정보 업데이트
+    reservation.status = Status.CANCEL;
+    reservation.cancelReason = cancelReservationDto.cancelReason;
+    reservation.cancelledAt = new Date();
+    await queryRunner.manager.save(reservation);
+
+    await queryRunner.commitTransaction();
+      
       // 'active' 컬럼을 false로 설정하여 예약을 비활성화
       // reservation.active = false;
 
@@ -260,9 +275,15 @@ export class ReservationService {
       await queryRunner.release();
     }
   }
+  async calculateMileageToDeduct(reservation: Reservation): Promise<number> {
+  const paymentAmount = parseFloat(reservation.paymentAmount);
+  // 취소된 예약 금액의 일정 비율을 마일리지로 사용
+    const mileageToDeduct = paymentAmount
+    return mileageToDeduct;
+  }
   // 예약 조회 메서드
   async findAllmyReservations(userId: number): Promise<Reservation[]> {
-    return await this.reservationRepository.find({ where: { userId } });
+    return await this.reservationRepository.find({ where: { user : {id : userId} } });
   }
 
   // 특정 예약 상세 조회

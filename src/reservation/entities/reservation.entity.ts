@@ -32,10 +32,6 @@ export class Reservation {
   id: number;
 
   @IsNumber()
-  @Column({ type: 'int', nullable: true })
-  userId: number;
-
-  @IsNumber()
   @Column({ type: 'int', nullable: false })
   tourId: number;
 
@@ -97,9 +93,6 @@ export class Reservation {
   @JoinColumn({ name: 'tourId' })
   tour: Tour;
 
-  @OneToMany(() => Review, (reviews) => reviews.reservations)
+  @OneToMany(() => Review, (reviews) => reviews.reservation)
   reviews: Review;
-
-  @ManyToMany(() => Mileage, (mileages) => mileages.reservations)
-  Mileage: Mileage[];
 }

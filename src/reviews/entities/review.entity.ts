@@ -37,7 +37,7 @@ export class Review {
 
     @ManyToOne(() => Reservation, (reservations) => reservations.reviews)
     @JoinColumn({ name: 'reservationId', referencedColumnName: 'id' })
-    reservations: Reservation;
+    reservation: Reservation;
 
     @ManyToOne(() => User, (user) => user.review)
     @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
