@@ -7,11 +7,29 @@ import { Region } from './entities/region.entity';
 import { User } from 'src/user/entities/user.entity';
 import { TourLike } from './entities/like.entity';
 import { Guide } from 'src/guide/entities/guide.entity';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { ChatService } from 'src/chat/chat.service';
+import { ChatTalk } from 'src/chat/entities/chattalk.entity';
+import { ChatModule } from 'src/chat/chat.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Tour, Region, User, TourLike, Guide])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Tour,
+      Region,
+      User,
+      TourLike,
+      Guide,
+      Chat,
+      ChatTalk,
+    ]),
+  ],
   controllers: [TourController],
+<<<<<<< HEAD
   providers: [TourService],
   exports: [TourService],
+=======
+  providers: [TourService, ChatService],
+>>>>>>> d8391713920d2fe3095bb052d1497ed655402393
 })
 export class TourModule {}

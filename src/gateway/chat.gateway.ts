@@ -1,5 +1,3 @@
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
   MessageBody,
@@ -11,10 +9,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { RedisIoAdapter } from 'src/adapters/redis-io.adapter';
 import { ChatService } from 'src/chat/chat.service';
+import { TourService } from 'src/tour/tour.service';
 
-interface User {
-  clientId: string;
-  userId: number;
+interface Client {
+  id: number;
+  isGuide: boolean;
 }
 
 @WebSocketGateway(4000, { namespace: 'chat' })
@@ -25,172 +24,114 @@ export class ChatGateway {
   constructor(
     private readonly chatService: ChatService,
     private readonly redisIoAdapter: RedisIoAdapter,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly tourService: TourService,
   ) {
     this.redisIoAdapter.connectToRedis();
   }
 
-  connectedClients: { [socketId: string]: boolean } = {};
-  clientNickName: { [socketId: string]: string } = {};
+  connectedClients: { [socketId: string]: Client } = {};
   roomUsers: { [key: string]: string[] } = {};
-  users: User[] = [];
+  // users: User[] = [];
+  // guides: Guide[] = [];
 
   handleConnection(@ConnectedSocket() client: Socket) {
     if (this.connectedClients[client.id]) {
       client.disconnect(true);
       return;
     }
-    this.connectedClients[client.id] = true;
-    const userId = +client.handshake.query.id;
-    this.users.push({ clientId: client.id, userId });
-    console.log('New client connected');
+    const { id, isGuide } = client.handshake.query;
+    console.log(client.handshake.query);
+
+    const userType = isGuide === 'true' ? 'Guide' : 'User';
+    this.connectedClients[client.id] = { id: +id, isGuide: isGuide === 'true' };
+    console.log(`New ${userType} client connected`);
   }
 
-  @SubscribeMessage('authenticate')
-  handleAuthentication(client: Socket, accessToken: string | string[]) {
-    try {
-      const userId = this.verifyToken(accessToken);
-      if (userId) {
-        client.emit('authenticated');
-      } else {
-        throw new WsException('사용자 인증이 실패했습니다.');
-      }
-    } catch (error) {
-      console.log(error);
-      client.emit('unauthorized', { message: '로그인이 필요합니다.' });
-      client.disconnect(true);
-    }
-  }
-
-  verifyToken(token: string | string[]): number | null {
-    try {
-      if (typeof token !== 'string') {
-        throw new WsException('토큰의 형식이 잘못 되었습니다.');
-      }
-      const payload = this.jwtService.verify(token, {
-        secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
-      });
-
-      if (!payload) {
-        throw new WsException('로그인이 필요합니다.');
-      }
-
-      const userId = payload.userId;
-      return userId;
-    } catch (error) {
-      console.log(error);
-      if (error.message === 'jwt expired') {
-        return null;
-      }
-      throw new WsException('토큰 검증 중 오류가 발생했습니다.');
-    }
-  }
-
-  @SubscribeMessage('createChatForReservation')
-  async handleCreateChatForReservation(@MessageBody() reservationId: number) {
-    // const { chatId, guideId, userId } =
-    //   await this.chatService.createChatforReservation(reservationId);
-    // // if (!guideId) {
-    // //   throw new Error('guideId를 찾을 수 없습니다.');
-    // // }
-    // this.emitChatRoomToUser(guideId, chatId.toString(), userId);
-    // this.emitChatRoomToUser(userId, chatId.toString(), guideId);
-  }
-  emitChatRoomToUser(userId: number, roomId: string, otherUserId: number) {
-    const userSocketId = this.users.find(
-      (user) => user.userId === userId,
-    )?.clientId;
-
-    if (userSocketId) {
-      this.server
-        .to(userSocketId)
-        .emit('chatRoom', { roomId, guideId: userId, userId: otherUserId });
-      this.joinRoom(userSocketId, roomId);
-    }
-  }
-
-  async joinRoom(clientId: string, room: string) {
-    const client = this.server.sockets.sockets[clientId];
-    if (!client.rooms.has(room)) {
-      client.join(room);
-      await this.chatService.saveJoinedRoom(room);
-      this.updateRoomUsers(room, clientId);
-    }
-  }
-
-  updateRoomUsers(room: string, clientId: string) {
-    const client = this.server.sockets.sockets[clientId];
-    const nickname =
-      this.clientNickName[clientId] ||
-      `User${Math.floor(Math.random() * 10000)}`;
-
-    if (!this.roomUsers[room]) {
-      this.roomUsers[room] = [];
-    }
-
-    if (!this.roomUsers[room].includes(nickname)) {
-      this.roomUsers[room].push(nickname);
-    }
-
-    this.server.to(room).emit('userjoined', { userId: nickname, room });
-    this.server
-      .to(room)
-      .emit('userList', { room, userList: this.roomUsers[room] });
-    this.server.emit('userList', {
-      room: null,
-      userList: Object.keys(this.clientNickName),
-    });
-  }
-
-  @SubscribeMessage('setnickName')
-  handleSetNickName(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() nickname: string,
+  @SubscribeMessage('joinRoom') //유저든 가이드든 상관없이 특정 룸에 조인, 조인하기 전 권한 확인 필요
+  async handlejoinRoom(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { room: string },
   ) {
-    if (Object.values(this.clientNickName).includes(nickname)) {
-      console.log(`중복된 닉네임입니다: ${nickname}`);
-      client.emit('errorMessage', '이미 사용하고 있는 닉네임입니다..');
-      return;
-    }
+    const joinedSocket = this.connectedClients[socket.id];
 
-    this.clientNickName[client.id] = nickname;
-    client.emit('nicknameSet', nickname);
+    const chat = await this.chatService.getChatbyRoom(data.room);
+    if (joinedSocket.isGuide && chat.guide.id === joinedSocket.id) {
+      socket.join(data.room);
+    } else if (!joinedSocket.isGuide && chat.user.id === joinedSocket.id) {
+      socket.join(data.room);
+    }
+  }
+
+  @SubscribeMessage('joinChatForInquiry')
+  async handleCreateChat(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { tourId: number },
+  ) {
+    const tourId = data.tourId;
+
+    try {
+      // 사용자 및 가이드의 소켓 확인
+      const userSocket = this.connectedClients[socket.id];
+      const userId = userSocket.id;
+      const chat = await this.tourService.createChatForTour(tourId, userId);
+
+      // 새로운 채팅방 생성
+      await this.chatService.saveChatRoom(chat.id + '', chat.id);
+      // console.log('chat', chat);
+      const guideId = chat.guide.id;
+      const guideSocket = Object.values(this.connectedClients).find(
+        (client) => client.id === guideId && client.isGuide,
+      );
+
+      // 사용자가 소켓에 연결되어 있고, 사용자의 id가 userId와 일치하는 경우
+      if (userSocket && userSocket.id === chat.user.id) {
+        // 채팅방에 사용자를 추가하고, 가이드가 소켓에 연결되어 있다면 가이드에게 채팅방 알림 전송
+        socket.join(chat.id + '');
+        if (guideSocket) {
+          this.server
+            .to(this.getSocketIdByUserId(guideId))
+            .emit('chatRoom', { room: chat.id + '' });
+        }
+      }
+      // 가이드가 소켓에 연결되어 있고, 가이드의 id가 guideId와 일치하는 경우
+      else if (guideSocket && guideSocket.id === guideId) {
+        // 채팅방에 가이드를 추가하고, 사용자가 소켓에 연결되어 있다면 사용자에게 채팅방 알림 전송
+        socket.join(chat.id + '');
+        if (userSocket) {
+          this.server
+            .to(this.getSocketIdByUserId(chat.user.id))
+            .emit('chatRoom', { room: chat.id + '' });
+        }
+      }
+    } catch (error) {
+      throw new WsException('채팅방을 생성할 수 없습니다.');
+    }
   }
 
   @SubscribeMessage('exit')
-  handleExist(@ConnectedSocket() client: Socket) {
+  handleExit(@ConnectedSocket() client: Socket) {
     Object.keys(client.rooms).forEach((room) => {
       client.leave(room);
-      const index = this.roomUsers[room]?.indexOf(
-        this.clientNickName[client.id],
-      );
-      if (index !== -1) {
-        this.roomUsers[room].splice(index, 1);
-        this.server.to(room).emit('userLeft'),
-          { userId: this.clientNickName[client.id] };
-        this.server
-          .to(room)
-          .emit('userList', { room, userList: this.roomUsers[room] });
+
+      const userId = this.connectedClients[client.id]?.id;
+      const isGuide = this.connectedClients[client.id]?.isGuide || false;
+
+      if (userId) {
+        const index = this.roomUsers[room]?.indexOf(userId.toString());
+        if (index !== -1) {
+          this.roomUsers[room].splice(index, 1);
+          this.server.to(room).emit('userLeft', { userId, isGuide });
+          this.server
+            .to(room)
+            .emit('userList', { room, userList: this.roomUsers[room] });
+        }
       }
     });
+
     this.server.emit('userList', {
       room: null,
       userList: Object.keys(this.connectedClients),
     });
-  }
-
-  @SubscribeMessage('getUserList')
-  handleGetUserList(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() room: string,
-  ) {
-    if (!room || !this.roomUsers[room]) {
-      client.emit('invalidRoom');
-      return;
-    }
-    const userList = this.roomUsers[room];
-    client.emit('userList', { room, userList });
   }
 
   @SubscribeMessage('chatMessage')
@@ -198,19 +139,43 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { message: string; room: string },
   ) {
-    const user = this.users.find((el) => el.clientId === client.id);
+    const user = this.connectedClients[client.id];
     if (!user) {
       throw new WsException('사용자를 찾을 수 없습니다.');
     }
+
+    // 현재 채팅방에 참여중인 가이드의 정보
+    const guideSocket = Object.values(this.connectedClients).find(
+      (client) => client.isGuide && client.id === user.id,
+    );
+
+    // 가이드가 있을 경우 guideId 변수에 가이드의 id 저장, 없을 경우 null
+    const guideId = guideSocket ? guideSocket.id : null;
+
     this.server.to(data.room).emit('chatMessage', {
-      userId: user.userId,
+      userId: user.id,
+      isGuide: user.isGuide,
+      guideId: guideId,
       message: data.message,
       room: data.room,
     });
     await this.chatService.saveChatMessage({
       message: data.message,
       room: data.room,
-      userId: user.userId,
+      userId: user.id,
+      guideId: guideId,
     });
+  }
+
+  private getSocketIdByUserId(userId: number): string | undefined {
+    const socketIds = Object.keys(this.connectedClients);
+
+    for (const socketId of socketIds) {
+      if (this.connectedClients[socketId].id === userId) {
+        return socketId;
+      }
+    }
+
+    return undefined;
   }
 }

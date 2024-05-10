@@ -1,0 +1,100 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.container h2 {
+  color: #333;
+}
+
+.content {
+  margin-top: 20px;
+  display: flex;
+}
+
+.content img {
+  width: 50%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.description {
+  width: 50%;
+  padding: 0 20px;
+}
+
+.description p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.price {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.reserve-btn,
+.chat-btn,
+button[type='submit'] {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.reserve-btn:hover,
+.chat-btn:hover,
+button[type='submit']:hover {
+  background-color: #0056b3;
+}
+
+.header-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.header-left h1 {
+  margin: 0;
+}
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.header-center select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  margin: 5px;
+}
+
+.header-right {
+  flex: 1;
+  text-align: right;
+}
+
+.header-right a {
+  color: #333;
+  margin-left: 10px;
+  text-decoration: none;
+}
