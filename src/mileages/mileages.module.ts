@@ -17,6 +17,7 @@ import { ChatService } from 'src/chat/chat.service';
 import { MileageHistory } from './entities/mileageHistory.entity';
 
 @Module({
+
   imports: [
     TypeOrmModule.forFeature([
       Mileage,
@@ -33,5 +34,6 @@ import { MileageHistory } from './entities/mileageHistory.entity';
   controllers: [MileagesController],
   providers: [MileagesService, ReservationService, TourService, ChatService],
   exports: [TypeOrmModule, MileagesService],
+
 })
 export class MileagesModule {}

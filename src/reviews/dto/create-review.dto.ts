@@ -11,4 +11,6 @@ export class CreateReviewDto extends PickType(Review,
 
     @IsNotEmpty()
     image : string
+
+    reservationId : number
 }

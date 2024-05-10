@@ -13,11 +13,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatTalk } from 'src/chat/entities/chattalk.entity';
+import { MileagesService } from 'src/mileages/mileages.service';
+import { MileageHistory } from 'src/mileages/entities/mileageHistory.entity';
+import { Mileage } from 'src/mileages/entities/mileages.entity';
 import { ChatService } from 'src/chat/chat.service';
+
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Reservation, Tour, Region, User, Chat, ChatTalk]),
+    TypeOrmModule.forFeature([Reservation, Tour, Region, User, Chat, ChatTalk, Mileage, MileageHistory]),
     JwtModule.register({}),
     AuthModule,
   ],
@@ -27,6 +31,7 @@ import { ChatService } from 'src/chat/chat.service';
     TourService,
     ReservationSchedulerService,
     ReservationGateWay,
+    MileagesService,
     ChatService,
   ],
   exports: [TypeOrmModule, ReservationService, ReservationGateWay, ChatService],

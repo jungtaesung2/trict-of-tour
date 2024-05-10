@@ -5,20 +5,10 @@ import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
 import { TourLike } from 'src/tour/entities/like.entity';
 import { Tour } from 'src/tour/entities/tour.entity';
 import { TourType } from 'src/tour/types/tourtypes.enum';
+import { OneToMany, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn, OneToOne } from 'typeorm';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatTalk } from 'src/chat/entities/chattalk.entity';
-import {
-  OneToMany,
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-  JoinColumn,
-  OneToOne,
-} from 'typeorm';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { UserInfo } from './userinfo.entity';
 
